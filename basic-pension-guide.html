@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>기초연금 안내 — 시니어 정보 귀리</title>
+  <meta name="description" content="기초연금 수급 자격, 2024년 지급 금액, 신청 방법을 알기 쉽게 안내합니다.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a class="site-logo" href="/">시니어 정보 귀리</a>
+      <nav class="site-nav">
+        <a href="nursing-home-search.html">기관 찾기</a>
+        <a href="nursing-home-cost-calculator.html">비용 계산</a>
+        <a href="long-term-care-grade.html">등급 안내</a>
+        <a href="basic-pension-guide.html" class="active">기초연금</a>
+        <a href="senior-job-guide.html">노인일자리</a>
+        <a href="medical-expense-deduction.html">의료비 공제</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>기초연금 안내</h1>
+      <p>수급 자격부터 신청까지, 놓치지 말고 확인하세요</p>
+    </div>
+  </section>
+
+  <main class="section">
+    <div class="container">
+
+      <div class="card">
+        <h2 class="section-title">수급 자격</h2>
+        <ul style="padding-left:1.2rem; line-height:2.2;">
+          <li>만 <strong>65세 이상</strong> 대한민국 국적, 국내 거주</li>
+          <li>가구 소득인정액이 선정기준액 이하</li>
+        </ul>
+
+        <div style="margin-top:1rem;">
+          <table class="result-table">
+            <thead>
+              <tr><th>가구 유형</th><th>2024년 선정기준액 (월)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>단독가구</td><td>2,130,000원</td></tr>
+              <tr><td>부부가구</td><td>3,408,000원</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:.85rem; color:var(--color-text-muted); margin-top:.5rem;">
+            소득인정액 = 소득평가액 + 재산의 소득환산액 (차량, 금융재산 등 포함)
+          </p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem;">
+        <h2 class="section-title">2024년 지급 금액</h2>
+        <table class="result-table">
+          <thead>
+            <tr><th>대상</th><th>최대 지급액 (월)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>단독가구</td><td>334,810원</td></tr>
+            <tr><td>부부가구 (1인)</td><td>267,850원</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:.85rem; color:var(--color-text-muted); margin-top:.5rem;">
+          * 국민연금 수령액, 소득인정액에 따라 감액될 수 있습니다.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:1rem;">
+        <h2 class="section-title">신청 방법</h2>
+        <ol class="steps">
+          <li><div><strong>신청 장소</strong><br><span style="color:var(--color-text-muted);font-size:.9rem;">주소지 읍·면·동 주민센터 또는 국민연금공단 지사, 복지로(www.bokjiro.go.kr) 온라인 신청 가능</span></div></li>
+          <li><div><strong>필요 서류</strong><br><span style="color:var(--color-text-muted);font-size:.9rem;">신분증, 통장 사본. 배우자 재산 조회 동의서 (부부가구)</span></div></li>
+          <li><div><strong>처리 기간</strong><br><span style="color:var(--color-text-muted);font-size:.9rem;">신청일로부터 약 30일 이내 결과 통보. 매월 25일 지급</span></div></li>
+        </ol>
+      </div>
+
+      <div class="card" style="margin-top:1rem;">
+        <h2 class="section-title">간이 수급 가능 여부 확인</h2>
+        <div class="form-group">
+          <label class="form-label" for="income">월 소득인정액 (원)</label>
+          <input class="form-input" type="number" id="income" placeholder="예: 1500000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            <input type="checkbox" id="isCouple" style="margin-right:.4rem;">
+            부부가구 (배우자도 65세 이상)
+          </label>
+        </div>
+        <button class="btn btn-primary" onclick="checkPension()" style="width:100%;">확인하기</button>
+
+        <div class="result-box" id="pensionResult" style="margin-top:1rem;">
+          <div id="pensionResultText"></div>
+        </div>
+      </div>
+
+      <div class="alert alert-info" style="margin-top:1.5rem;">
+        <strong>문의:</strong> 보건복지부 콜센터 ☎ 129 / 국민연금공단 ☎ 1355
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p><strong style="color:#e5e7eb;">시니어 정보 귀리</strong></p>
+      <div class="footer-disclaimer">
+        기초연금 지급 기준은 매년 변경됩니다. 정확한 수급 여부는 주민센터 또는 복지로(www.bokjiro.go.kr)에서 확인하세요.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/calculator.js"></script>
+  <script>
+    function checkPension() {
+      const income = getNumVal('income');
+      const isCouple = document.getElementById('isCouple').checked;
+
+      if (!income && income !== 0) { alert('소득인정액을 입력해주세요.'); return; }
+
+      const result = checkBasicPensionEligibility({ monthlyIncome: income, isCouple });
+      const box = document.getElementById('pensionResult');
+      const text = document.getElementById('pensionResultText');
+
+      if (result.eligible) {
+        box.style.background = 'var(--color-accent-light)';
+        box.style.borderColor = 'var(--color-accent)';
+        text.innerHTML = `
+          <div class="result-label">판정 결과</div>
+          <div class="result-value" style="color:var(--color-accent); font-size:1.5rem;">수급 가능성 있음</div>
+          <p style="margin-top:.5rem;font-size:.9rem;">선정기준액(${formatKRW(result.threshold)}) 이하입니다. 주민센터에서 정확한 확인을 받으세요.</p>
+        `;
+      } else {
+        box.style.background = 'var(--color-warning-light)';
+        box.style.borderColor = 'var(--color-warning)';
+        text.innerHTML = `
+          <div class="result-label">판정 결과</div>
+          <div class="result-value" style="color:var(--color-warning); font-size:1.5rem;">선정기준액 초과</div>
+          <p style="margin-top:.5rem;font-size:.9rem;">기준액(${formatKRW(result.threshold)}) 대비 ${formatKRW(Math.abs(result.diff))} 초과합니다.</p>
+        `;
+      }
+      box.classList.add('visible');
+    }
+  </script>
+
+</body>
+</html>
