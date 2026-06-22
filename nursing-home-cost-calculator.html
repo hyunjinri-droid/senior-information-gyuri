@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>요양원 본인부담금 계산기 — 시니어 정보 귀리</title>
+  <meta name="description" content="장기요양등급별 요양원 월 본인부담금을 계산해보세요. 2024년 건강보험공단 기준.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a class="site-logo" href="/">시니어 정보 귀리</a>
+      <nav class="site-nav">
+        <a href="nursing-home-search.html">기관 찾기</a>
+        <a href="nursing-home-cost-calculator.html" class="active">비용 계산</a>
+        <a href="long-term-care-grade.html">등급 안내</a>
+        <a href="basic-pension-guide.html">기초연금</a>
+        <a href="senior-job-guide.html">노인일자리</a>
+        <a href="medical-expense-deduction.html">의료비 공제</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>요양원 본인부담금 계산기</h1>
+      <p>등급과 시설 유형에 따라 월 부담금을 미리 확인하세요</p>
+    </div>
+  </section>
+
+  <main class="section">
+    <div class="container">
+
+      <div class="alert alert-info" style="margin-bottom:1.5rem;">
+        2024년 장기요양 수가 기준입니다. 식재료비·이미용비 등 비급여 항목은 별도입니다.
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">조건 입력</h2>
+
+        <div class="form-group">
+          <label class="form-label" for="grade">장기요양등급</label>
+          <select class="form-select" id="grade">
+            <option value="">등급 선택</option>
+            <option value="1">1등급 (최중증)</option>
+            <option value="2">2등급 (중증)</option>
+            <option value="3">3등급 (중등도)</option>
+            <option value="4">4등급 (경증)</option>
+            <option value="5">5등급 (치매)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="facilityType">시설 유형</label>
+          <select class="form-select" id="facilityType">
+            <option value="요양원">노인요양시설 (요양원)</option>
+            <option value="공동생활가정">노인요양공동생활가정</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <input type="checkbox" id="isLowIncome" style="margin-right:.4rem;">
+            의료급여 수급자 또는 기초생활수급자 (감경 6%)
+          </label>
+        </div>
+
+        <button class="btn btn-primary" onclick="calculate()" style="width:100%;">계산하기</button>
+      </div>
+
+      <div class="result-box" id="resultBox">
+        <div class="result-label">월 본인부담금 (예상)</div>
+        <div class="result-value" id="copayResult">-</div>
+        <div id="resultDetail" style="margin-top:1rem; font-size:.9rem; color:var(--color-text-muted);"></div>
+      </div>
+
+      <div class="card" style="margin-top:2rem;">
+        <h2 class="section-title">등급별 본인부담률 요약</h2>
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>등급</th>
+              <th>일반 부담률</th>
+              <th>감경 대상 부담률</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1~2등급</td><td>20%</td><td>6%</td></tr>
+            <tr><td>3~5등급</td><td>15%</td><td>6%</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:.85rem; color:var(--color-text-muted); margin-top:.5rem;">
+          * 감경 대상: 의료급여 수급자, 기초생활수급자(생계·의료급여), 차상위계층 중 일부
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p><strong style="color:#e5e7eb;">시니어 정보 귀리</strong></p>
+      <div class="footer-disclaimer">
+        본 계산기는 참고용이며, 실제 부담금은 기관 및 건강보험공단 확인이 필요합니다.
+        비급여 항목(식재료비, 이미용비 등)은 포함되지 않습니다.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/calculator.js"></script>
+  <script>
+    function calculate() {
+      const grade = parseInt(getVal('grade'));
+      const facilityType = getVal('facilityType');
+      const isLowIncome = document.getElementById('isLowIncome').checked;
+
+      if (!grade) { alert('등급을 선택해주세요.'); return; }
+
+      const result = calcNursingHomeCopay({ grade, facilityType, isLowIncome });
+      if (!result) { alert('계산 중 오류가 발생했습니다.'); return; }
+
+      document.getElementById('copayResult').textContent = formatKRW(result.copay);
+      document.getElementById('resultDetail').innerHTML = `
+        <p>월 장기요양 수가: <strong>${formatKRW(result.totalFee)}</strong></p>
+        <p>본인부담률: <strong>${formatPercent(result.copayRate)}</strong></p>
+        <p>국가 지원금: <strong>${formatKRW(result.governmentSupport)}</strong></p>
+      `;
+
+      showResult('resultBox', document.getElementById('resultBox').innerHTML);
+      document.getElementById('resultBox').classList.add('visible');
+    }
+  </script>
+
+</body>
+</html>

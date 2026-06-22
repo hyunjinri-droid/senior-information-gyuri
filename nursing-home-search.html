@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>장기요양기관 찾기 — 시니어 정보 귀리</title>
+  <meta name="description" content="지역별 장기요양기관(요양원, 공동생활가정)을 검색하고 평가등급을 확인하세요.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a class="site-logo" href="/">시니어 정보 귀리</a>
+      <nav class="site-nav">
+        <a href="nursing-home-search.html" class="active">기관 찾기</a>
+        <a href="nursing-home-cost-calculator.html">비용 계산</a>
+        <a href="long-term-care-grade.html">등급 안내</a>
+        <a href="basic-pension-guide.html">기초연금</a>
+        <a href="senior-job-guide.html">노인일자리</a>
+        <a href="medical-expense-deduction.html">의료비 공제</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>장기요양기관 찾기</h1>
+      <p>지역을 선택해 근처 요양원·공동생활가정을 검색해보세요</p>
+    </div>
+  </section>
+
+  <main class="section">
+    <div class="container">
+
+      <div class="card">
+        <h2 class="section-title">지역 검색</h2>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label" for="sido">시/도</label>
+            <select class="form-select" id="sido" onchange="updateSigungu()">
+              <option value="">시/도 선택</option>
+              <option>서울특별시</option>
+              <option>부산광역시</option>
+              <option>대구광역시</option>
+              <option>인천광역시</option>
+              <option>광주광역시</option>
+              <option>대전광역시</option>
+              <option>울산광역시</option>
+              <option>세종특별자치시</option>
+              <option>경기도</option>
+              <option>강원특별자치도</option>
+              <option>충청북도</option>
+              <option>충청남도</option>
+              <option>전북특별자치도</option>
+              <option>전라남도</option>
+              <option>경상북도</option>
+              <option>경상남도</option>
+              <option>제주특별자치도</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin:0;">
+            <label class="form-label" for="sigungu">시/군/구</label>
+            <input class="form-input" type="text" id="sigungu" placeholder="예: 강남구">
+          </div>
+
+          <button class="btn btn-primary" onclick="searchFacilities(1)">검색</button>
+        </div>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>검색 중입니다...</p>
+      </div>
+
+      <div id="results" style="margin-top:1.5rem;"></div>
+      <div class="pagination" id="pagination"></div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p><strong style="color:#e5e7eb;">시니어 정보 귀리</strong></p>
+      <div class="footer-disclaimer">
+        기관 정보는 국민건강보험공단 공공데이터를 기반으로 제공됩니다.
+        최신 정보 및 입소 문의는 해당 기관에 직접 확인하시기 바랍니다.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    let currentPage = 1;
+
+    async function searchFacilities(page) {
+      const sido = document.getElementById('sido').value;
+      const sigungu = document.getElementById('sigungu').value.trim();
+
+      if (!sido) {
+        alert('시/도를 선택해주세요.');
+        return;
+      }
+
+      currentPage = page;
+      toggleLoading(true);
+      document.getElementById('results').innerHTML = '';
+      document.getElementById('pagination').innerHTML = '';
+
+      try {
+        const params = new URLSearchParams({ sido, sigungu, pageIndex: page });
+        const res = await fetch(`/api/ltc/search?${params}`);
+        const data = await res.json();
+
+        if (data.error) throw new Error(data.error);
+
+        renderResults(data);
+      } catch (e) {
+        document.getElementById('results').innerHTML =
+          `<div class="alert alert-warning">검색 중 오류가 발생했습니다: ${e.message}</div>`;
+      } finally {
+        toggleLoading(false);
+      }
+    }
+
+    function renderResults(data) {
+      const items = data?.items || [];
+      const total = data?.totalCount || 0;
+      const resultsEl = document.getElementById('results');
+
+      if (!items.length) {
+        resultsEl.innerHTML = '<div class="alert alert-info">검색 결과가 없습니다. 다른 지역을 검색해보세요.</div>';
+        return;
+      }
+
+      resultsEl.innerHTML = `<p style="margin-bottom:1rem; color:var(--color-text-muted);">총 <strong>${total}</strong>개 기관</p>` +
+        items.map(item => `
+          <div class="facility-card">
+            <h3>${item.name || '(기관명 없음)'}</h3>
+            <div class="facility-meta">
+              <span>📍 ${item.address || '-'}</span>
+              <span>📞 ${item.tel || '-'}</span>
+              ${item.facilityType ? `<span>${item.facilityType}</span>` : ''}
+              ${item.grade ? `<span class="facility-grade grade-${gradeClass(item.grade)}">${item.grade}등급</span>` : ''}
+            </div>
+          </div>
+        `).join('');
+
+      renderPagination(total);
+    }
+
+    function gradeClass(grade) {
+      if (grade === 'A' || grade === '1') return 'a';
+      if (grade === 'B' || grade === '2') return 'b';
+      return 'c';
+    }
+
+    function renderPagination(total) {
+      const totalPages = Math.ceil(total / 10);
+      if (totalPages <= 1) return;
+
+      const pagEl = document.getElementById('pagination');
+      let html = '';
+      const start = Math.max(1, currentPage - 2);
+      const end = Math.min(totalPages, currentPage + 2);
+
+      if (currentPage > 1) html += `<button class="page-btn" onclick="searchFacilities(${currentPage - 1})">◀</button>`;
+      for (let i = start; i <= end; i++) {
+        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="searchFacilities(${i})">${i}</button>`;
+      }
+      if (currentPage < totalPages) html += `<button class="page-btn" onclick="searchFacilities(${currentPage + 1})">▶</button>`;
+
+      pagEl.innerHTML = html;
+    }
+
+    function toggleLoading(show) {
+      document.getElementById('loading').classList.toggle('visible', show);
+    }
+
+    function updateSigungu() {
+      document.getElementById('sigungu').value = '';
+    }
+  </script>
+
+</body>
+</html>
