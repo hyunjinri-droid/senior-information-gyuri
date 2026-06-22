@@ -15,6 +15,7 @@
   <header class="site-header">
     <div class="container">
       <a class="site-logo" href="/">시니어 정보</a>
+      <button class="menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
       <nav class="site-nav">
         <a href="nursing-home-search.html">기관 찾기</a>
         <a href="nursing-home-cost-calculator.html">비용 계산</a>
@@ -24,7 +25,16 @@
         <a href="medical-expense-deduction.html">의료비 공제</a>
       </nav>
     </div>
-  </header>
+    <nav class="mobile-nav" id="mobileNav">
+    <a href="nursing-home-search.html">기관 찾기</a>
+    <a href="nursing-home-cost-calculator.html">비용 계산</a>
+    <a href="long-term-care-grade.html">등급 안내</a>
+    <a href="basic-pension-guide.html">기초연금</a>
+    <a href="senior-job-guide.html">노인일자리</a>
+    <a href="medical-expense-deduction.html">의료비 공제</a>
+    <a href="privacy-policy.html">개인정보처리방침</a>
+  </nav>
+</header>
 
   <section class="hero">
     <div class="container">
@@ -97,6 +107,7 @@
     <div class="container">
       <p><strong style="color:#e5e7eb;">시니어 정보</strong></p>
       <p style="margin-top:.5rem;">어르신과 가족을 위한 복지 정보 안내 사이트</p>
+      <p style="margin-top:.5rem;"><a href="privacy-policy.html">개인정보처리방침</a></p>
       <div class="footer-disclaimer">
         본 사이트에서 제공하는 정보는 일반적인 안내 목적으로 제공되며, 실제 수급 여부·금액은
         관할 기관(국민건강보험공단, 읍·면·동 주민센터 등)에 직접 문의하여 확인하시기 바랍니다.
@@ -105,5 +116,6 @@
     </div>
   </footer>
 
+  <script src="js/common.js"></script>
 </body>
 </html>

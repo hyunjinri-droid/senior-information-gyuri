@@ -15,6 +15,7 @@
   <header class="site-header">
     <div class="container">
       <a class="site-logo" href="/">시니어 정보</a>
+      <button class="menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
       <nav class="site-nav">
         <a href="nursing-home-search.html">기관 찾기</a>
         <a href="nursing-home-cost-calculator.html">비용 계산</a>
@@ -24,7 +25,16 @@
         <a href="medical-expense-deduction.html" class="active">의료비 공제</a>
       </nav>
     </div>
-  </header>
+    <nav class="mobile-nav" id="mobileNav">
+    <a href="nursing-home-search.html">기관 찾기</a>
+    <a href="nursing-home-cost-calculator.html">비용 계산</a>
+    <a href="long-term-care-grade.html">등급 안내</a>
+    <a href="basic-pension-guide.html">기초연금</a>
+    <a href="senior-job-guide.html">노인일자리</a>
+    <a href="medical-expense-deduction.html">의료비 공제</a>
+    <a href="privacy-policy.html">개인정보처리방침</a>
+  </nav>
+</header>
 
   <section class="hero">
     <div class="container">
@@ -93,6 +103,7 @@
   <footer class="site-footer">
     <div class="container">
       <p><strong style="color:#e5e7eb;">시니어 정보</strong></p>
+      <p style="margin-bottom:.5rem;"><a href="privacy-policy.html">개인정보처리방침</a></p>
       <div class="footer-disclaimer">
         본 계산기는 참고용입니다. 실제 공제액은 국세청 홈택스(www.hometax.go.kr) 또는 세무사 상담을 통해 확인하세요.
         세법은 매년 변경될 수 있습니다.
@@ -138,5 +149,6 @@
     }
   </script>
 
+  <script src="js/common.js"></script>
 </body>
 </html>
