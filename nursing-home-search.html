@@ -128,8 +128,8 @@
     }
 
     function renderResults(data) {
-      const items = data?.response?.body?.items?.item || [];
-      const total = data?.response?.body?.totalCount || 0;
+      const items = data?.items || [];
+      const total = data?.totalCount || 0;
       const resultsEl = document.getElementById('results');
 
       if (!items.length) {
@@ -137,15 +137,15 @@
         return;
       }
 
-      const list = Array.isArray(items) ? items : [items];
       resultsEl.innerHTML = `<p style="margin-bottom:1rem; color:var(--color-text-muted);">총 <strong>${total}</strong>개 기관</p>` +
-        list.map(item => `
+        items.map(item => `
           <div class="facility-card">
-            <h3>${item.longTermCareNm || '(기관명 없음)'}</h3>
+            <h3>${item.name || '(기관명 없음)'}</h3>
             <div class="facility-meta">
-              <span>📍 ${item.addr || '-'}</span>
-              <span>📞 ${item.telno || '-'}</span>
-              ${item.ratingGrd ? `<span class="facility-grade grade-${gradeClass(item.ratingGrd)}">${item.ratingGrd}등급</span>` : ''}
+              <span>📍 ${item.address || '-'}</span>
+              <span>📞 ${item.tel || '-'}</span>
+              ${item.facilityType ? `<span>${item.facilityType}</span>` : ''}
+              ${item.grade ? `<span class="facility-grade grade-${gradeClass(item.grade)}">${item.grade}등급</span>` : ''}
             </div>
           </div>
         `).join('');
@@ -154,8 +154,8 @@
     }
 
     function gradeClass(grade) {
-      if (grade === 'A') return 'a';
-      if (grade === 'B') return 'b';
+      if (grade === 'A' || grade === '1') return 'a';
+      if (grade === 'B' || grade === '2') return 'b';
       return 'c';
     }
 
