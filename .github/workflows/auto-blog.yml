@@ -39,3 +39,27 @@ jobs:
           git add blog/ sitemap.xml
           git diff --cached --quiet || git commit -m "auto: 블로그 글 자동 발행 $(date +'%Y-%m-%d')"
           git push
+
+      - name: Send email notification
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          to: kyukyurin123@gmail.com
+          from: 시니어 정보 자동발행 <${{ secrets.MAIL_USERNAME }}>
+          subject: "📝 새 블로그 글이 발행되었습니다 ($(date +'%Y-%m-%d'))"
+          body: |
+            안녕하세요!
+
+            시니어 정보 블로그에 새 글이 자동 발행되었습니다.
+
+            🔗 블로그 확인하기: https://senior.information-gyuri.com/blog/
+
+            ---
+            카카오채널 소식에도 올려주세요!
+            채널: https://pf.kakao.com/_wnuwX
+
+            시니어 정보 자동발행 시스템
