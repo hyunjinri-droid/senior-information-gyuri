@@ -62,30 +62,81 @@
     ]
   }
   </script>
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <style>
+    .post-header { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #fff; padding: 3rem 0; }
+    .post-header .category-badge { display: inline-block; background: rgba(255,255,255,0.2); color: #fff; font-size: .8rem; font-weight: 700; padding: 3px 12px; border-radius: 999px; margin-bottom: .75rem; }
+    .post-header h1 { font-size: 1.6rem; font-weight: 700; line-height: 1.4; margin-bottom: .75rem; }
+    .post-header .post-meta { font-size: .875rem; opacity: .85; }
+    .post-body { max-width: 740px; margin: 0 auto; padding: 3rem 1rem; line-height: 1.9; font-size: 1.05rem; }
+    .post-body h2 { font-size: 1.3rem; font-weight: 700; color: #2563eb; margin: 2.5rem 0 1rem; padding-bottom: .4rem; border-bottom: 2px solid #dbeafe; }
+    .post-body h3 { font-size: 1.1rem; font-weight: 700; margin: 1.5rem 0 .5rem; }
+    .post-body p { margin-bottom: 1rem; }
+    .post-body ul, .post-body ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+    .post-body li { margin-bottom: .4rem; }
+    .post-body .highlight-box { background: #dbeafe; border-left: 4px solid #2563eb; border-radius: 0 .5rem .5rem 0; padding: 1rem 1.25rem; margin: 1.5rem 0; }
+    .post-body table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: .95rem; }
+    .post-body th, .post-body td { border: 1px solid #e5e7eb; padding: .6rem .8rem; text-align: left; }
+    .post-body th { background: #dbeafe; font-weight: 700; }
+    .post-body .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; }
+    .post-body .table-wrapper table { margin: 0; }
+    .related-links { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: .5rem; padding: 1.25rem; margin-top: 2.5rem; }
+    .related-links h3 { font-size: 1rem; margin-bottom: .75rem; color: #6b7280; }
+    .related-links a { display: block; padding: .4rem 0; border-bottom: 1px solid #e5e7eb; font-size: .95rem; }
+    .related-links a:last-child { border-bottom: none; }
+    .back-btn { display: inline-flex; align-items: center; gap: .4rem; color: #6b7280; font-size: .9rem; margin-bottom: 1.5rem; text-decoration: none; }
+    .back-btn:hover { color: #2563eb; }
+    .faq-section { margin-top: 2.5rem; }
+    .faq-section details { border: 1px solid #e5e7eb; border-radius: .5rem; margin-bottom: .75rem; overflow: hidden; }
+    .faq-section summary { padding: 1rem 1.25rem; font-weight: 700; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after { content: '+'; font-size: 1.2rem; color: #2563eb; }
+    .faq-section details[open] summary::after { content: '−'; }
+    .faq-section details p { padding: 1rem 1.25rem; background: #f9fafb; border-top: 1px solid #e5e7eb; margin: 0; }
+    .post-body .lead { font-size: 1.05rem; color: #374151; line-height: 1.9; margin-bottom: 1.5rem; }
+    @media (max-width: 480px) { .post-header h1 { font-size: 1.3rem; } .post-body { font-size: 1rem; padding: 1.5rem 1rem; } }
+  </style>
 </head>
 <body>
-  <header>
+    <header class="site-header">
     <div class="container">
-      <a href="../" class="logo">시니어 정보</a>
-      <nav>
-        <a href="../nursing-home-search.html">요양원 찾기</a>
-        <a href="../long-term-care-grade.html">장기요양등급</a>
+      <a class="site-logo" href="/">시니어 정보</a>
+      <button class="menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
+      <nav class="site-nav">
+        <a href="../nursing-home-search.html">기관 찾기</a>
+        <a href="../nursing-home-cost-calculator.html">비용 계산</a>
+        <a href="../long-term-care-grade.html">등급 안내</a>
         <a href="../basic-pension-guide.html">기초연금</a>
-        <a href="./index.html">블로그</a>
+        <a href="../senior-job-guide.html">노인일자리</a>
+        <a href="index.html" class="active">블로그</a>
       </nav>
     </div>
   </header>
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="../nursing-home-search.html">기관 찾기</a>
+    <a href="../nursing-home-cost-calculator.html">비용 계산</a>
+    <a href="../long-term-care-grade.html">등급 안내</a>
+    <a href="../basic-pension-guide.html">기초연금</a>
+    <a href="../senior-job-guide.html">노인일자리</a>
+    <a href="index.html" class="active">블로그</a>
+    <a href="../privacy-policy.html">개인정보처리방침</a>
+  </nav>
 
-  <main class="container blog-post">
-    <article>
-      <div class="post-meta">
-        <span class="category">복지정책</span>
-        <span class="date">2026년 7월 12일</span>
-        <span class="read-time">읽는 시간 약 7분</span>
-      </div>
+    <div class="post-header">
+    <div class="container">
+      <span class="category-badge">복지정책</span>
       <h1>인천시 병원동행서비스 신청방법·무료대상·연락처 (2026년)</h1>
-      <p class="lead">인천시는 만 65세 이상 기초연금 수급 어르신을 중심으로 병원동행서비스를 지원합니다. 중구·동구·미추홀구·연수구·남동구·부평구·계양구·서구 등 <strong>8개 구별로 운영 기관이 다르기 때문에</strong> 내가 사는 구의 서비스를 정확히 파악하는 것이 중요합니다.</p>
+      <div class="post-meta">2026년 7월 12일 · 읽는 시간 약 7분</div>
+    </div>
+  </div>
+
+  <div class="post-body">
+    <a href="index.html" class="back-btn">← 블로그 목록으로</a>
+
+    <p class="lead">인천시는 만 65세 이상 기초연금 수급 어르신을 중심으로 병원동행서비스를 지원합니다. 중구·동구·미추홀구·연수구·남동구·부평구·계양구·서구 등 <strong>8개 구별로 운영 기관이 다르기 때문에</strong> 내가 사는 구의 서비스를 정확히 파악하는 것이 중요합니다.</p>
 
       <div class="highlight-box">
         <strong>📋 인천시 병원동행서비스 핵심 요약</strong>
@@ -227,12 +278,17 @@
           <li><a href="../basic-pension-guide.html">기초연금 신청 방법</a></li>
         </ul>
       </div>
-    </article>
-  </main>
+  </div>
 
-  <footer>
+    <footer class="site-footer">
     <div class="container">
-      <p>© 2026 시니어 정보 | <a href="../privacy-policy.html">개인정보처리방침</a></p>
+      <p><strong style="color:#e5e7eb;">시니어 정보</strong></p>
+      <p style="margin-top:.5rem;">어르신과 가족을 위한 복지 정보 안내 사이트</p>
+      <p style="margin-top:.5rem;"><a href="../privacy-policy.html">개인정보처리방침</a></p>
+      <div class="footer-disclaimer">
+        본 사이트에서 제공하는 정보는 일반적인 안내 목적으로 제공되며, 실제 수급 여부·금액은
+        관할 기관에 직접 문의하여 확인하시기 바랍니다.
+      </div>
     </div>
   </footer>
   <script src="../js/common.js"></script>
