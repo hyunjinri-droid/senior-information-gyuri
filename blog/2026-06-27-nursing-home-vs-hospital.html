@@ -10,6 +10,11 @@
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://senior.information-gyuri.com/blog/2026-06-27-nursing-home-vs-hospital.html">
   <meta property="og:site_name" content="시니어 정보">
+  <link rel="canonical" href="https://senior.information-gyuri.com/blog/2026-06-27-nursing-home-vs-hospital.html">
+  <meta property="og:image" content="https://senior.information-gyuri.com/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="628">
+  <meta property="og:image:alt" content="시니어 정보 — 노인복지 정보 가이드">
   <meta property="article:published_time" content="2026-06-27">
   <meta property="article:modified_time" content="2026-06-27">
   <meta property="article:section" content="요양원">
@@ -91,6 +96,26 @@
     .back-btn:hover { color: var(--color-primary); text-decoration: none; }
     @media (max-width: 480px) { .post-header h1 { font-size: 1.3rem; } .post-body { font-size: 1rem; } }
   </style>
+
+    <style>
+      .faq-section{margin-top:2rem;}
+      .faq-section h2{font-size:1.2rem;font-weight:700;margin-bottom:1rem;}
+      .faq-item{border:1px solid var(--color-border);border-radius:var(--border-radius);margin-bottom:.75rem;overflow:hidden;}
+      .faq-q{background:var(--color-bg-subtle,#f8f9fa);padding:.85rem 1rem;font-weight:600;font-size:.95rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:.5rem;}
+      .faq-q::after{content:"﹢";font-size:1.2rem;flex-shrink:0;}
+      .faq-item.open .faq-q::after{content:"﹣";}
+      .faq-a{display:none;padding:.85rem 1rem;font-size:.9rem;line-height:1.8;border-top:1px solid var(--color-border);}
+      .faq-item.open .faq-a{display:block;}
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded',function(){
+        document.querySelectorAll('.faq-q').forEach(function(btn){
+          btn.addEventListener('click',function(){
+            btn.closest('.faq-item').classList.toggle('open');
+          });
+        });
+      });
+    </script>
 </head>
 <body>
   <header class="site-header">

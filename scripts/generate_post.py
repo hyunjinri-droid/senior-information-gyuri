@@ -148,6 +148,11 @@ def generate_post():
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://senior.information-gyuri.com/blog/[slug].html">
   <meta property="og:site_name" content="시니어 정보">
+  <link rel="canonical" href="https://senior.information-gyuri.com/blog/[slug].html">
+  <meta property="og:image" content="https://senior.information-gyuri.com/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="628">
+  <meta property="og:image:alt" content="시니어 정보 — 노인복지 정보 가이드">
   <meta property="article:published_time" content="{today}">
   <meta property="article:modified_time" content="{today}">
   <meta property="article:section" content="[카테고리]">
