@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="628" viewBox="0 0 1200 628">
+  <rect width="1200" height="628" fill="#1e3a8a"/>
+  <rect x="0" y="0" width="1200" height="628" fill="url(#grad)"/>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a8a"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <text x="600" y="260" font-family="'Noto Sans KR', sans-serif" font-size="72" font-weight="700" fill="white" text-anchor="middle">시니어 정보</text>
+  <text x="600" y="350" font-family="'Noto Sans KR', sans-serif" font-size="36" fill="rgba(255,255,255,0.85)" text-anchor="middle">어르신과 가족을 위한 복지 정보 안내</text>
+  <text x="600" y="420" font-family="'Noto Sans KR', sans-serif" font-size="26" fill="rgba(255,255,255,0.6)" text-anchor="middle">senior.information-gyuri.com</text>
+</svg>

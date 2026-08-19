@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>페이지를 찾을 수 없습니다 — 시니어 정보</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <style>
+    .error-section {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+    .error-code {
+      font-size: 6rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+    .error-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: .75rem;
+    }
+    .error-desc {
+      color: var(--color-text-muted);
+      margin-bottom: 2rem;
+      line-height: 1.8;
+    }
+    .error-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      justify-content: center;
+    }
+    .error-links a {
+      display: inline-block;
+      padding: .65rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: .95rem;
+      text-decoration: none;
+    }
+    .btn-primary { background: var(--color-primary); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; color: #fff; }
+    .btn-outline { border: 1.5px solid var(--color-primary); color: var(--color-primary); }
+    .btn-outline:hover { background: var(--color-primary-light); }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <nav class="site-nav">
+        <a class="site-logo" href="/">시니어 정보</a>
+        <ul class="nav-links">
+          <li><a href="/nursing-home-search.html">기관 찾기</a></li>
+          <li><a href="/nursing-home-cost-calculator.html">비용 계산</a></li>
+          <li><a href="/long-term-care-grade.html">등급 안내</a></li>
+          <li><a href="/basic-pension-guide.html">기초연금</a></li>
+          <li><a href="/senior-job-guide.html">노인일자리</a></li>
+          <li><a href="/blog/index.html" class="nav-blog">블로그</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section class="error-section">
+    <div>
+      <div class="error-code">404</div>
+      <h1 class="error-title">페이지를 찾을 수 없습니다</h1>
+      <p class="error-desc">
+        요청하신 페이지가 없거나 주소가 변경되었습니다.<br>
+        아래 링크에서 원하는 정보를 찾아보세요.
+      </p>
+      <div class="error-links">
+        <a href="/" class="btn-primary">홈으로 가기</a>
+        <a href="/blog/index.html" class="btn-outline">블로그 목록</a>
+        <a href="/nursing-home-search.html" class="btn-outline">요양원 찾기</a>
+        <a href="/basic-pension-guide.html" class="btn-outline">기초연금 안내</a>
+        <a href="/long-term-care-grade.html" class="btn-outline">장기요양등급 안내</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p><strong style="color:#e5e7eb;">시니어 정보</strong></p>
+      <p style="margin-top:.5rem;"><a href="/privacy-policy.html">개인정보처리방침</a></p>
+      <div class="footer-disclaimer">본 사이트에서 제공하는 정보는 일반적인 안내 목적으로 제공되며, 실제 수급 여부·금액은 관할 기관에 직접 문의하여 확인하시기 바랍니다.</div>
+    </div>
+  </footer>
+  <script src="/js/common.js"></script>
+</body>
+</html>
