@@ -122,6 +122,23 @@
   <div class="post-body">
     <a href="index.html" class="back-btn">← 블로그 목록으로</a>
 
+
+    <style>
+      .series-nav{background:#f0f4ff;border:1px solid #d0d9f5;border-radius:12px;padding:1rem 1rem .6rem;margin-bottom:2rem;}
+      .series-nav-label{font-size:.8rem;font-weight:700;color:#6b7280;margin-bottom:.6rem;display:flex;align-items:center;gap:.3rem;}
+      .series-nav-item{display:flex;justify-content:space-between;align-items:center;padding:.65rem .9rem;border-radius:8px;margin-bottom:.35rem;font-size:.92rem;font-weight:500;color:#1e293b;text-decoration:none;border:1px solid #e5e7eb;background:#fff;transition:background .15s;}
+      .series-nav-item:hover{background:#e8eeff;text-decoration:none;color:#1e293b;}
+      .series-nav-item.current{background:#2d4eb0;color:#fff;border-color:#2d4eb0;font-weight:700;}
+      .series-nav-item .arrow{flex-shrink:0;font-size:1rem;}
+      .series-nav-item.current .arrow{color:#fff;}
+    </style>
+    <nav class="series-nav" aria-label="관련 가이드 시리즈">
+      <div class="series-nav-label">📌 관련 가이드 바로가기</div>
+      <a href="2026-06-22-nursing-home-checklist.html" class="series-nav-item"><span>요양원 선택 체크리스트 20가지</span><span class="arrow">→</span></a>
+      <a href="2026-06-27-nursing-home-vs-hospital.html" class="series-nav-item"><span>요양원 vs 요양병원, 무엇이 다를까?</span><span class="arrow">→</span></a>
+      <div class="series-nav-item current"><span>단기보호 서비스 신청방법·비용 총정리</span><span class="arrow">✓</span></div>
+    </nav>
+
     <p class="lead">평소 집에서 어머니를 모시고 계신데, 며칠간 출장을 가야 하거나 본인이 수술로 입원하게 되어 "이 며칠 동안 어머니를 어디에 모셔야 하나" 막막했던 적 있으신가요? 요양원에 아예 입소시키기는 부담스럽고, 그렇다고 며칠을 혼자 두기도 어려운 상황. 이럴 때 활용할 수 있는 것이 <strong>장기요양 단기보호 서비스</strong>입니다. 이 글에서는 재가급여 중 하나인 단기보호의 <strong>대상·이용일수·비용(본인부담금)·신청 절차</strong>를 단계별로 정리합니다.</p>
 
     <div class="highlight-box">
@@ -179,6 +196,12 @@
       </table>
     </div>
     <p style="font-size:.875rem; color:var(--color-text-muted);">(출처: 국민건강보험공단 장기요양보험, 2026년 기준)</p>
+    <style>
+      .cta-red{display:block;background:#e03b2f;color:#fff;font-weight:700;font-size:1.05rem;text-align:center;padding:1.1rem 1.5rem;border-radius:8px;text-decoration:none;margin:2rem 0;transition:background .15s;}
+      .cta-red:hover{background:#c0392b;color:#fff;text-decoration:none;}
+    </style>
+    <a href="../nursing-home-cost-calculator.html" class="cta-red">장기요양 비용 계산하기 →</a>
+
     <div class="warn-box">
       <strong>식사재료비 등 비급여는 별도입니다.</strong> 위 본인부담률은 급여 항목에 적용되는 것이며, 식사재료비·간식비 등 비급여 항목은 전액 본인 부담입니다. 기관마다 비급여 금액이 다르므로 예약 시 하루 총비용을 미리 확인하세요.
     </div>

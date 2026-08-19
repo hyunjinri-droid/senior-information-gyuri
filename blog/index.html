@@ -99,6 +99,46 @@
     @media (max-width: 480px) {
       .post-grid { grid-template-columns: 1fr; }
     }
+    .post-card { flex-direction: row; align-items: stretch; }
+    .post-thumb {
+      width: 100px;
+      min-width: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: .3rem;
+      border-radius: var(--border-radius) 0 0 var(--border-radius);
+      padding: .5rem;
+      overflow: hidden;
+    }
+    .post-thumb-emoji { font-size: 1.8rem; line-height: 1; }
+    .post-thumb-hashtag {
+      font-size: .65rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.85);
+      background: rgba(0,0,0,.25);
+      border-radius: 999px;
+      padding: 2px 7px;
+      text-align: center;
+      max-width: 85px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .thumb-장기요양 { background: linear-gradient(135deg,#1e40af,#3b82f6); }
+    .thumb-기초연금  { background: linear-gradient(135deg,#065f46,#10b981); }
+    .thumb-요양원   { background: linear-gradient(135deg,#0369a1,#38bdf8); }
+    .thumb-노인일자리{ background: linear-gradient(135deg,#92400e,#f59e0b); }
+    .thumb-의료비   { background: linear-gradient(135deg,#be185d,#ec4899); }
+    .thumb-복지정책  { background: linear-gradient(135deg,#4c1d95,#8b5cf6); }
+    .thumb-연금정보  { background: linear-gradient(135deg,#065f46,#10b981); }
+    @media (max-width: 480px) {
+      .post-thumb { width: 80px; min-width: 80px; }
+      .post-thumb-emoji { font-size: 1.4rem; }
+      .post-card { flex-direction: row; }
+      .post-grid { grid-template-columns: 1fr; }
+    }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2284090720087182"
        crossorigin="anonymous"></script>
@@ -471,13 +511,21 @@
         grid.innerHTML = '<p style="color:var(--color-text-muted);">해당 카테고리 글이 없습니다.</p>';
         return;
       }
+      const emojiMap = {
+        '장기요양':'🏥','기초연금':'💰','요양원':'🏡','노인일자리':'💼',
+        '의료비':'🩺','복지정책':'📋','연금정보':'💰'
+      };
       grid.innerHTML = posts.map(p => `
-        <a class="post-card" href="${p.slug}.html">
+        <a class="post-card" href="${p.slug}.html" data-category="${p.category}">
+          <div class="post-thumb thumb-${p.category}">
+            <div class="post-thumb-emoji">${emojiMap[p.category] || '📄'}</div>
+            <div class="post-thumb-hashtag">#${p.category}</div>
+          </div>
           <div class="post-card-body">
             <span class="post-category cat-${p.category}">${p.category}</span>
             <div class="post-title">${p.title}</div>
             <div class="post-excerpt">${p.excerpt}</div>
-            <div class="post-meta">${formatDate(p.date)} · 읽는 시간 약 ${p.readMin}분</div>
+            <div class="post-meta">${formatDate(p.date)} · 약 ${p.readMin}분</div>
           </div>
         </a>
       `).join('');

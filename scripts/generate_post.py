@@ -221,6 +221,13 @@ def generate_post():
     .faq-item summary::after {{ content: '+'; font-size: 1.2rem; color: var(--color-primary); }}
     .faq-item[open] summary::after {{ content: '−'; }}
     .faq-item .faq-answer {{ padding: 1rem 1.25rem; background: var(--color-bg); border-top: 1px solid var(--color-border); font-size: .95rem; line-height: 1.8; }}
+    .series-nav {{ background:#f0f4ff; border:1px solid #d0d9f5; border-radius:12px; padding:1rem 1rem .6rem; margin-bottom:2rem; }}
+    .series-nav-label {{ font-size:.8rem; font-weight:700; color:#6b7280; margin-bottom:.6rem; }}
+    .series-nav-item {{ display:flex; justify-content:space-between; align-items:center; padding:.65rem .9rem; border-radius:8px; margin-bottom:.35rem; font-size:.92rem; font-weight:500; color:#1e293b; text-decoration:none; border:1px solid #e5e7eb; background:#fff; transition:background .15s; }}
+    .series-nav-item:hover {{ background:#e8eeff; text-decoration:none; color:#1e293b; }}
+    .series-nav-item.current {{ background:#2d4eb0; color:#fff; border-color:#2d4eb0; font-weight:700; }}
+    .cta-red {{ display:block; background:#e03b2f; color:#fff; font-weight:700; font-size:1.05rem; text-align:center; padding:1.1rem 1.5rem; border-radius:8px; text-decoration:none; margin:2rem 0; transition:background .15s; }}
+    .cta-red:hover {{ background:#c0392b; color:#fff; text-decoration:none; }}
     @media (max-width: 480px) {{ .post-header h1 {{ font-size: 1.3rem; }} .post-body {{ font-size: 1rem; }} }}
   </style>
 </head>
@@ -259,6 +266,13 @@ def generate_post():
 
   <div class="post-body">
     <a href="index.html" class="back-btn">← 블로그 목록으로</a>
+
+    <!-- 📌 관련 가이드 바로가기 (시리즈 네비): 같은 카테고리 관련 글 3~6개 링크 -->
+    <!-- 현재 글은 class="series-nav-item current"로 표시, 나머지는 <a> 태그 -->
+    <nav class="series-nav" aria-label="관련 가이드 시리즈">
+      <div class="series-nav-label">📌 관련 가이드 바로가기</div>
+      <!-- [관련 글 링크들을 여기에 삽입] -->
+    </nav>
 
     <!-- ① 돌봄 시나리오 리드 (필수): 40~50대 자녀가 공감하는 현실적 상황 묘사로 시작 -->
     <p class="lead">[현실적인 돌봄 상황 시나리오 1~2문장. 예: "치매 진단을 받으신 아버지를 두고 어떻게 해야 할지 막막했던 경험, 많은 분들이 비슷한 상황을 겪고 계십니다."] 이 글에서는 [주제 귀속: 요양등급 신청 / 시설 선택 / 비용 계산] 과정을 단계별로 정리합니다.</p>

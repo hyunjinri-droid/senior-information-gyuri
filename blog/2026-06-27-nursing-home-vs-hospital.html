@@ -153,6 +153,23 @@
   <div class="post-body">
     <a href="index.html" class="back-btn">← 블로그 목록으로</a>
 
+
+    <style>
+      .series-nav{background:#f0f4ff;border:1px solid #d0d9f5;border-radius:12px;padding:1rem 1rem .6rem;margin-bottom:2rem;}
+      .series-nav-label{font-size:.8rem;font-weight:700;color:#6b7280;margin-bottom:.6rem;display:flex;align-items:center;gap:.3rem;}
+      .series-nav-item{display:flex;justify-content:space-between;align-items:center;padding:.65rem .9rem;border-radius:8px;margin-bottom:.35rem;font-size:.92rem;font-weight:500;color:#1e293b;text-decoration:none;border:1px solid #e5e7eb;background:#fff;transition:background .15s;}
+      .series-nav-item:hover{background:#e8eeff;text-decoration:none;color:#1e293b;}
+      .series-nav-item.current{background:#2d4eb0;color:#fff;border-color:#2d4eb0;font-weight:700;}
+      .series-nav-item .arrow{flex-shrink:0;font-size:1rem;}
+      .series-nav-item.current .arrow{color:#fff;}
+    </style>
+    <nav class="series-nav" aria-label="관련 가이드 시리즈">
+      <div class="series-nav-label">📌 관련 가이드 바로가기</div>
+      <a href="2026-06-22-nursing-home-checklist.html" class="series-nav-item"><span>요양원 선택 체크리스트 20가지</span><span class="arrow">→</span></a>
+      <div class="series-nav-item current"><span>요양원 vs 요양병원, 무엇이 다를까?</span><span class="arrow">✓</span></div>
+      <a href="2026-07-28-respite-care-service-guide.html" class="series-nav-item"><span>단기보호 서비스 신청방법·비용 총정리</span><span class="arrow">→</span></a>
+    </nav>
+
     <div class="highlight-box" style="background:#eff6ff; border-left-color:#2563eb;">
       <strong style="font-size:1rem;">핵심 요약</strong>
       <ul style="margin:.5rem 0 0; padding-left:1.2rem;">
@@ -202,6 +219,12 @@
     <h2>비용 구조 자세히 보기</h2>
     <p>요양원은 <strong>장기요양보험</strong>이 적용되어 시설 이용료의 <strong>20%만 본인이 부담</strong>합니다. 여기에 식비·간식비·상급침실료 등 비급여 항목이 더해져 월 60~90만 원 선이 일반적입니다. 기초생활수급자는 본인부담이 면제되거나 크게 경감됩니다.</p>
     <p>요양병원은 <strong>건강보험</strong>이 적용되어 치료비 부담은 낮지만, <strong>간병비가 건강보험 적용이 안 되어</strong> 전액 자비로 부담합니다. 1:1 개인간병은 월 300만 원 이상, 6~8인 공동간병도 월 70~120만 원 수준이라 총비용이 요양원보다 높아지는 경우가 많습니다.</p>
+    <style>
+      .cta-red{display:block;background:#e03b2f;color:#fff;font-weight:700;font-size:1.05rem;text-align:center;padding:1.1rem 1.5rem;border-radius:8px;text-decoration:none;margin:2rem 0;transition:background .15s;}
+      .cta-red:hover{background:#c0392b;color:#fff;text-decoration:none;}
+    </style>
+    <a href="../nursing-home-search.html" class="cta-red">요양원 찾기 →</a>
+
     <div class="warn-box">
       <strong>⚠️ 주의</strong><br>
       “요양병원은 건강보험이라 싸다”는 오해가 많습니다. 치료비는 저렴해도 <strong>간병비가 별도</strong>이므로 실제 가족 부담은 요양원보다 큰 경우가 흔합니다. 반드시 간병비 포함 총액으로 비교하세요.
