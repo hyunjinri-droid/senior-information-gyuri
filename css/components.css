@@ -213,3 +213,25 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ===========================
+   체크박스 터치 타겟 (48×48px 최소)
+   =========================== */
+.form-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+  vertical-align: middle;
+}
+
+.form-label {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
