@@ -14,6 +14,42 @@
   to = "/.netlify/functions/ltc-search/:splat"
   status = 200
 
+# .html 확장자 없는 URL → .html 301 리디렉션 (중복 URL 제거)
+[[redirects]]
+  from = "/basic-pension-guide"
+  to = "/basic-pension-guide.html"
+  status = 301
+
+[[redirects]]
+  from = "/long-term-care-grade"
+  to = "/long-term-care-grade.html"
+  status = 301
+
+[[redirects]]
+  from = "/medical-expense-deduction"
+  to = "/medical-expense-deduction.html"
+  status = 301
+
+[[redirects]]
+  from = "/nursing-home-cost-calculator"
+  to = "/nursing-home-cost-calculator.html"
+  status = 301
+
+[[redirects]]
+  from = "/nursing-home-search"
+  to = "/nursing-home-search.html"
+  status = 301
+
+[[redirects]]
+  from = "/senior-job-guide"
+  to = "/senior-job-guide.html"
+  status = 301
+
+[[redirects]]
+  from = "/privacy-policy"
+  to = "/privacy-policy.html"
+  status = 301
+
 [[redirects]]
   from = "/*"
   to = "/404.html"
