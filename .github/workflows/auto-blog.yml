@@ -37,7 +37,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
           git add blog/ sitemap.xml
-          git diff --cached --quiet || git commit -m "auto: 블로그 글 자동 발행 $(date +'%Y-%m-%d')"
+          TODAY=$(TZ=Asia/Seoul date +'%Y-%m-%d')
+          git diff --cached --quiet || git commit -m "auto: 블로그 글 자동 발행 ${TODAY}"
           git push
 
       - name: Send email notification
@@ -50,7 +51,7 @@ jobs:
           password: ${{ secrets.MAIL_PASSWORD }}
           to: kyukyurin123@gmail.com
           from: 시니어 정보 자동발행 <${{ secrets.MAIL_USERNAME }}>
-          subject: "📝 새 블로그 글이 발행되었습니다 ($(date +'%Y-%m-%d'))"
+          subject: "📝 새 블로그 글이 발행되었습니다"
           body: |
             안녕하세요!
 

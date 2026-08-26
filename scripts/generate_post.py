@@ -367,10 +367,17 @@ def generate_post():
     return data
 
 
+CATEGORY_EMOJI = {
+    '장기요양': '🏥', '기초연금': '💰', '요양원': '🏠',
+    '노인일자리': '💼', '의료비': '🩺', '복지정책': '📋',
+}
+
+
 def update_blog_index(slug, title, excerpt, category, date, read_min):
     with open('blog/index.html', 'r', encoding='utf-8') as f:
         content = f.read()
 
+    # 1) POSTS 배열에 새 항목 추가
     new_entry = f"""      {{
         slug: '{slug}',
         title: '{title}',
@@ -383,6 +390,27 @@ def update_blog_index(slug, title, excerpt, category, date, read_min):
     content = content.replace(
         'const POSTS = [',
         f'const POSTS = [\n{new_entry}'
+    )
+
+    # 2) 정적 pre-render HTML에 새 카드 삽입 (postGrid 직후)
+    year, month, day = date.split('-')
+    emoji = CATEGORY_EMOJI.get(category, '📄')
+    new_card = f"""        <a class="post-card" href="{slug}.html" data-category="{category}">
+          <div class="post-thumb thumb-{category}">
+            <div class="post-thumb-emoji">{emoji}</div>
+            <div class="post-thumb-hashtag">#{category}</div>
+          </div>
+          <div class="post-card-body">
+            <span class="post-category cat-{category}">{category}</span>
+            <div class="post-title">{title}</div>
+            <div class="post-excerpt">{excerpt}</div>
+            <div class="post-meta">{year}년 {int(month)}월 {int(day)}일 · 약 {read_min}분</div>
+          </div>
+        </a>"""
+
+    content = content.replace(
+        '<div class="post-grid" id="postGrid">',
+        f'<div class="post-grid" id="postGrid">\n{new_card}'
     )
 
     with open('blog/index.html', 'w', encoding='utf-8') as f:
