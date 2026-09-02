@@ -1,22 +1,20 @@
 /**
- * 시도 코드별 검색 결과 건수 확인 (임시)
+ * 장기요양기관 상세조회 오퍼레이션명 탐색 (임시)
  */
 
 const https = require('https');
 const API_HOST = 'apis.data.go.kr';
-const SEARCH_PATH = '/B550928/searchLtcInsttService02/getLtcInsttSeachList02';
+const DETAIL_SERVICE = '/B550928/getLtcInsttDetailInfoService02';
 
-// 테스트할 시도 코드
-const SIDO_TESTS = [
-  { name: '서울', code: '11' },
-  { name: '부산', code: '21' },
-  { name: '대구', code: '22' },
-  { name: '인천', code: '23' },
-  { name: '광주', code: '24' },
-  { name: '대전', code: '25' },
-  { name: '울산', code: '26' },
-  { name: '세종', code: '29' },
-  { name: '경기', code: '31' },
+const OPS = [
+  'getLtcInsttDetailInfo02',
+  'getLtcInsttDetailInfoList02',
+  'getLtcInsttDetail02',
+  'getDetailInfo02',
+  'getLtcInsttDetailInfoSeach02',
+  'getLtcInsttDetailInfoSearch02',
+  'getLtcInsttInfo02',
+  'getInsttDetailInfo02',
 ];
 
 exports.handler = async function (event) {
@@ -24,18 +22,22 @@ exports.handler = async function (event) {
   const apiKey = process.env.LTC_API_KEY;
   if (!apiKey) return { statusCode: 500, headers, body: JSON.stringify({ error: 'LTC_API_KEY 없음' }) };
 
+  const code = (event.queryStringParameters || {}).code || '11168000009';
   const results = [];
-  for (const { name, code } of SIDO_TESTS) {
-    const params = new URLSearchParams({ serviceKey: apiKey, pageNo: 1, numOfRows: 1, siDoCd: code });
-    const url = `https://${API_HOST}${SEARCH_PATH}?${params}`;
+
+  for (const op of OPS) {
+    const params = new URLSearchParams({ serviceKey: apiKey, longTermAdminSym: code });
+    const url = `https://${API_HOST}${DETAIL_SERVICE}/${op}?${params}`;
     try {
       const xml = await fetchXml(url);
+      const errMsg = getTag(xml, 'errMsg');
+      const returnAuthMsg = getTag(xml, 'returnAuthMsg');
       const resultCode = getTag(xml, 'resultCode');
       const totalCount = getTag(xml, 'totalCount');
-      const errMsg = getTag(xml, 'errMsg');
-      results.push({ name, code, resultCode, totalCount, errMsg });
+      const hasItem = xml.includes('<item>');
+      results.push({ op, errMsg, returnAuthMsg, resultCode, totalCount, hasItem, snippet: xml.substring(0, 500) });
     } catch (e) {
-      results.push({ name, code, error: e.message });
+      results.push({ op, error: e.message });
     }
   }
 
