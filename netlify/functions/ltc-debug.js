@@ -1,5 +1,5 @@
 /**
- * siDoCd 전수 탐색 01-50 (임시)
+ * siDoCd 전수 탐색 01-50 병렬 (임시)
  */
 const https = require('https');
 const API_HOST = 'apis.data.go.kr';
@@ -10,24 +10,21 @@ exports.handler = async function (event) {
   const apiKey = process.env.LTC_API_KEY;
   if (!apiKey) return { statusCode: 500, headers, body: JSON.stringify({ error: 'LTC_API_KEY 없음' }) };
 
-  const results = [];
-  for (let i = 1; i <= 50; i++) {
-    const code = String(i).padStart(2, '0');
+  const codes = Array.from({length: 50}, (_, i) => String(i + 1).padStart(2, '0'));
+
+  const results = await Promise.all(codes.map(async code => {
     const params = new URLSearchParams({ serviceKey: apiKey, pageNo: 1, numOfRows: 1, siDoCd: code });
     const url = `https://${API_HOST}${SEARCH_PATH}?${params}`;
     try {
       const xml = await fetchXml(url);
       const totalCount = parseInt(getTag(xml, 'totalCount') || '0', 10);
-      if (totalCount > 0) {
-        const itemMatch = xml.match(/<item>([\s\S]*?)<\/item>/);
-        const siDoCdVal = itemMatch ? getTag(itemMatch[1], 'siDoCd') : '';
-        results.push({ code, totalCount, siDoCdInItem: siDoCdVal });
-      }
+      return totalCount > 0 ? { code, totalCount } : null;
     } catch (e) {
-      results.push({ code, error: e.message });
+      return { code, error: e.message };
     }
-  }
-  return { statusCode: 200, headers, body: JSON.stringify(results, null, 2) };
+  }));
+
+  return { statusCode: 200, headers, body: JSON.stringify(results.filter(Boolean), null, 2) };
 };
 
 function getTag(xml, tag) {
