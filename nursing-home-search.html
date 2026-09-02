@@ -275,9 +275,7 @@
               ${item.facilityType ? `<span style="font-size:.78rem;white-space:nowrap;background:var(--color-primary-light);color:var(--color-primary);padding:2px 8px;border-radius:999px;">${item.facilityType}</span>` : ''}
             </div>
             <div class="facility-meta" id="detail-${i}" style="display:none;margin-top:.75rem;">
-              <span id="addr-${i}">📍 불러오는 중...</span>
-              <span id="tel-${i}"></span>
-              <span id="grade-${i}"></span>
+              <a href="https://www.longtermcare.or.kr/npbs/r/a/201/curationServiceSelectView.web?longTermNo=${item.code}" target="_blank" rel="noopener" style="font-size:.85rem;color:var(--color-primary);">🔍 노인장기요양보험 홈페이지에서 상세 정보 보기 →</a>
             </div>
           </div>
         `).join('');
@@ -285,25 +283,13 @@
       renderPagination(total);
     }
 
-    async function toggleDetail(i, code) {
+    function toggleDetail(i, code) {
       const detailEl = document.getElementById(`detail-${i}`);
       if (detailEl.style.display !== 'none') {
         detailEl.style.display = 'none';
         return;
       }
       detailEl.style.display = 'flex';
-
-      if (document.getElementById(`addr-${i}`).textContent === '📍 불러오는 중...') {
-        try {
-          const res = await fetch(`/api/ltc/detail?code=${encodeURIComponent(code)}`);
-          const d = await res.json();
-          document.getElementById(`addr-${i}`).textContent = d.address ? `📍 ${d.address}` : '📍 주소 정보 없음';
-          document.getElementById(`tel-${i}`).textContent = d.tel ? `📞 ${d.tel}` : '';
-          document.getElementById(`grade-${i}`).textContent = d.grade ? `평가등급: ${d.grade}` : '';
-        } catch {
-          document.getElementById(`addr-${i}`).textContent = '📍 상세 정보 조회 실패';
-        }
-      }
     }
 
     function renderPagination(total) {
