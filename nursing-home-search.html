@@ -327,8 +327,8 @@
           if (pttnCd) params.set('pttnCd', pttnCd);
           const res = await fetch(`/api/ltc/detail?${params}`);
           const d = await res.json();
-          document.getElementById(`addr-${i}`).textContent = d.tel ? `📍 ${d.tel}` : '📍 전화번호 정보 없음';
-          document.getElementById(`tel-${i}`).innerHTML = `<a href="https://www.longtermcare.or.kr/npbs/r/a/201/curationServiceSelectView.web?longTermNo=${code}" target="_blank" rel="noopener" style="font-size:.82rem;color:var(--color-primary);">🔍 상세정보 →</a>`;
+          document.getElementById(`addr-${i}`).textContent = d.tel ? `📞 ${d.tel}` : '전화번호 정보 없음';
+          document.getElementById(`tel-${i}`).textContent = '';
         } catch {
           document.getElementById(`addr-${i}`).textContent = '📍 정보 조회 실패';
         }
