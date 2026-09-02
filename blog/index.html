@@ -139,6 +139,19 @@
       .post-card { flex-direction: row; }
       .post-grid { grid-template-columns: 1fr; }
     }
+    .page-btn {
+      min-width: 2.2rem; height: 2.2rem;
+      padding: 0 .6rem;
+      border-radius: 6px;
+      border: 1px solid var(--color-border);
+      background: var(--color-white);
+      font-size: .9rem;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .page-btn:hover { background: var(--color-primary-light); border-color: var(--color-primary); color: var(--color-primary); }
+    .page-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); font-weight: 700; }
+    .page-ellipsis { padding: 0 .3rem; color: var(--color-text-muted); }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2284090720087182"
        crossorigin="anonymous"></script>
@@ -479,6 +492,8 @@
           </div>
         </a>
       </div>
+
+      <div id="pagination" style="display:flex;justify-content:center;align-items:center;gap:.4rem;flex-wrap:wrap;margin-top:2rem;"></div>
 
     </div>
   </main>
@@ -937,19 +952,31 @@
     ];
     /* ===================================================== */
 
+    const POSTS_PER_PAGE = 12;
     let currentFilter = '전체';
+    let currentPage = 1;
 
-    function renderPosts(posts) {
+    function getFiltered() {
+      return currentFilter === '전체' ? POSTS : POSTS.filter(p => p.category === currentFilter);
+    }
+
+    function renderPosts() {
+      const filtered = getFiltered();
+      const totalPages = Math.ceil(filtered.length / POSTS_PER_PAGE);
+      const start = (currentPage - 1) * POSTS_PER_PAGE;
+      const pagePosts = filtered.slice(start, start + POSTS_PER_PAGE);
+
       const grid = document.getElementById('postGrid');
-      if (!posts.length) {
+      if (!pagePosts.length) {
         grid.innerHTML = '<p style="color:var(--color-text-muted);">해당 카테고리 글이 없습니다.</p>';
+        renderPagination(0, 0);
         return;
       }
       const emojiMap = {
         '장기요양':'🏥','기초연금':'💰','요양원':'🏡','노인일자리':'💼',
         '의료비':'🩺','복지정책':'📋','연금정보':'💰'
       };
-      grid.innerHTML = posts.map(p => `
+      grid.innerHTML = pagePosts.map(p => `
         <a class="post-card" href="${p.slug}.html" data-category="${p.category}">
           <div class="post-thumb thumb-${p.category}">
             <div class="post-thumb-emoji">${emojiMap[p.category] || '📄'}</div>
@@ -963,14 +990,44 @@
           </div>
         </a>
       `).join('');
+
+      renderPagination(currentPage, totalPages);
+    }
+
+    function renderPagination(page, totalPages) {
+      const box = document.getElementById('pagination');
+      if (!box) return;
+      if (totalPages <= 1) { box.innerHTML = ''; return; }
+
+      const pages = [];
+      // always show first, last, current ±1
+      const show = new Set([1, totalPages, page - 1, page, page + 1].filter(n => n >= 1 && n <= totalPages));
+      const sorted = [...show].sort((a, b) => a - b);
+
+      let html = '';
+      if (page > 1) html += `<button class="page-btn" onclick="goPage(${page - 1})">‹ 이전</button>`;
+      let prev = 0;
+      for (const n of sorted) {
+        if (prev && n - prev > 1) html += `<span class="page-ellipsis">…</span>`;
+        html += `<button class="page-btn${n === page ? ' active' : ''}" onclick="goPage(${n})">${n}</button>`;
+        prev = n;
+      }
+      if (page < totalPages) html += `<button class="page-btn" onclick="goPage(${page + 1})">다음 ›</button>`;
+      box.innerHTML = html;
+    }
+
+    function goPage(n) {
+      currentPage = n;
+      renderPosts();
+      document.getElementById('postGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function filterPosts(cat, btn) {
       currentFilter = cat;
+      currentPage = 1;
       document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const filtered = cat === '전체' ? POSTS : POSTS.filter(p => p.category === cat);
-      renderPosts(filtered);
+      renderPosts();
     }
 
     function formatDate(dateStr) {
@@ -978,7 +1035,7 @@
       return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
     }
 
-    renderPosts(POSTS);
+    renderPosts();
   </script>
 
 </body>
