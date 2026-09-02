@@ -266,15 +266,18 @@
         return;
       }
 
-      resultsEl.innerHTML = `<p style="margin-bottom:1rem; color:var(--color-text-muted);">총 <strong>${total}</strong>개 기관</p>` +
-        items.map(item => `
-          <div class="facility-card">
-            <h3>${item.name || '(기관명 없음)'}</h3>
-            <div class="facility-meta">
-              <span>📍 ${item.address || '-'}</span>
-              <span>📞 ${item.tel || '-'}</span>
-              ${item.facilityType ? `<span>${item.facilityType}</span>` : ''}
-              ${item.grade ? `<span class="facility-grade grade-${gradeClass(item.grade)}">${item.grade}등급</span>` : ''}
+      const notice = data.notice ? `<p style="font-size:.82rem;color:var(--color-text-muted);margin-bottom:.5rem;">※ ${data.notice}</p>` : '';
+      resultsEl.innerHTML = `<p style="margin-bottom:.5rem; color:var(--color-text-muted);">총 <strong>${total}</strong>개 기관 (클릭하면 상세 정보)</p>${notice}` +
+        items.map((item, i) => `
+          <div class="facility-card" id="card-${i}" onclick="toggleDetail(${i}, '${item.code}')" style="cursor:pointer;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;">
+              <h3 style="margin:0;">${item.name || '(기관명 없음)'}</h3>
+              ${item.facilityType ? `<span style="font-size:.78rem;white-space:nowrap;background:var(--color-primary-light);color:var(--color-primary);padding:2px 8px;border-radius:999px;">${item.facilityType}</span>` : ''}
+            </div>
+            <div class="facility-meta" id="detail-${i}" style="display:none;margin-top:.75rem;">
+              <span id="addr-${i}">📍 불러오는 중...</span>
+              <span id="tel-${i}"></span>
+              <span id="grade-${i}"></span>
             </div>
           </div>
         `).join('');
@@ -282,10 +285,25 @@
       renderPagination(total);
     }
 
-    function gradeClass(grade) {
-      if (grade === 'A' || grade === '1') return 'a';
-      if (grade === 'B' || grade === '2') return 'b';
-      return 'c';
+    async function toggleDetail(i, code) {
+      const detailEl = document.getElementById(`detail-${i}`);
+      if (detailEl.style.display !== 'none') {
+        detailEl.style.display = 'none';
+        return;
+      }
+      detailEl.style.display = 'flex';
+
+      if (document.getElementById(`addr-${i}`).textContent === '📍 불러오는 중...') {
+        try {
+          const res = await fetch(`/api/ltc/detail?code=${encodeURIComponent(code)}`);
+          const d = await res.json();
+          document.getElementById(`addr-${i}`).textContent = d.address ? `📍 ${d.address}` : '📍 주소 정보 없음';
+          document.getElementById(`tel-${i}`).textContent = d.tel ? `📞 ${d.tel}` : '';
+          document.getElementById(`grade-${i}`).textContent = d.grade ? `평가등급: ${d.grade}` : '';
+        } catch {
+          document.getElementById(`addr-${i}`).textContent = '📍 상세 정보 조회 실패';
+        }
+      }
     }
 
     function renderPagination(total) {

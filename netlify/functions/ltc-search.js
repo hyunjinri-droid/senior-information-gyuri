@@ -136,6 +136,13 @@ exports.handler = async function (event) {
   }
 };
 
+// 기관유형코드 → 한글명
+const ADMIN_PTTN = {
+  A01: '노인요양시설', A02: '노인요양공동생활가정', A03: '주야간보호',
+  A04: '단기보호', A05: '방문요양', A06: '방문목욕', A07: '방문간호',
+  A08: '복지용구', B01: '재가노인복지시설',
+};
+
 function parseSearchXml(xml) {
   const totalCount = parseInt(getTag(xml, 'totalCount') || '0', 10);
   const pageNo = parseInt(getTag(xml, 'pageNo') || '1', 10);
@@ -146,13 +153,19 @@ function parseSearchXml(xml) {
   let match;
   while ((match = itemRegex.exec(xml)) !== null) {
     const b = match[1];
+    const pttnCd = getTag(b, 'adminPttnCd');
     items.push({
-      name: getTag(b, 'adminNm') || getTag(b, 'longtermCareNm') || getTag(b, 'ltcInsttNm') || '',
-      address: getTag(b, 'addr') || getTag(b, 'roadNmAddr') || getTag(b, 'lotNoAddr') || getTag(b, 'detailAddr') || '',
-      tel: getTag(b, 'locTelNo') || getTag(b, 'telno') || getTag(b, 'telNo') || '',
-      grade: getTag(b, 'grtdRslt') || getTag(b, 'evalRslt') || getTag(b, 'rtngGd') || '',
-      facilityType: getTag(b, 'adminPttnCd') || getTag(b, 'longTermCareTypeNm') || getTag(b, 'institClassNm') || '',
-      code: getTag(b, 'longTermAdminSym') || getTag(b, 'ltcInsttCd') || getTag(b, 'institCode') || '',
+      name: getTag(b, 'adminNm') || '',
+      facilityType: ADMIN_PTTN[pttnCd] || pttnCd || '',
+      facilityTypeCode: pttnCd,
+      code: getTag(b, 'longTermAdminSym') || '',
+      registDate: getTag(b, 'longTermPeribRgtDt') || '',
+      siDoCd: getTag(b, 'siDoCd') || '',
+      siGunGuCd: getTag(b, 'siGunGuCd') || '',
+      // 상세조회 API에서 가져올 항목 (기본값 빈 문자열)
+      address: '',
+      tel: '',
+      grade: '',
     });
   }
 
