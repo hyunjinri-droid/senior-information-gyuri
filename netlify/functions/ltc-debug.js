@@ -1,22 +1,20 @@
 /**
- * 장기요양기관 API 디버그 함수 (임시)
+ * 장기요양기관 API 디버그 (임시) — 시도코드 숫자 방식 테스트
  * GET /.netlify/functions/ltc-debug
- * 여러 오퍼레이션명 + 파라미터 방식을 시도해 어떤 것이 데이터를 반환하는지 확인
  */
 
 const https = require('https');
 
 const API_HOST = 'apis.data.go.kr';
-const SERVICE_BASE = '/B550928/searchLtcInsttService02';
+const OP = 'getLtcInsttSeachList02';
+const SERVICE = '/B550928/searchLtcInsttService02';
 
-// 시도할 오퍼레이션명 목록
-const OPERATIONS = [
-  'getLtcInsttSeachList02',   // 우리가 쓰던 것 (Seach 오타)
-  'getLtcInsttSearchList02',  // 정상 철자
-  'getLtcInsttList02',
-  'getLtcInsttSeachList',
-  'getLtcInsttSearchList',
-  'getSearchList',
+// 시도 코드 (건보공단 장기요양 시스템 기준 추정)
+// 서울=11, 부산=21, 대구=22, 인천=23, 광주=24, 대전=25, 울산=26
+// 세종=29, 경기=31, 강원=32, 충북=33, 충남=34, 전북=35, 전남=36, 경북=37, 경남=38, 제주=39
+const SIDO_CODES = [
+  { name: '서울', code: '11' },
+  { name: '경기', code: '31' },
 ];
 
 exports.handler = async function (event) {
@@ -26,39 +24,44 @@ exports.handler = async function (event) {
   };
 
   const apiKey = process.env.LTC_API_KEY;
-  if (!apiKey) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: 'LTC_API_KEY 없음' }) };
-  }
-
-  const keyInfo = `길이=${apiKey.length}, 앞4자=${apiKey.substring(0, 4)}, 뒤4자=${apiKey.slice(-4)}`;
+  if (!apiKey) return { statusCode: 500, headers, body: JSON.stringify({ error: 'LTC_API_KEY 없음' }) };
 
   const results = [];
 
-  for (const op of OPERATIONS) {
-    // 파라미터 없이 전국 조회 (가장 넓은 조건)
-    const url = `https://${API_HOST}${SERVICE_BASE}/${op}?serviceKey=${apiKey}&pageNo=1&numOfRows=3`;
-    try {
-      const xml = await fetchXml(url);
-      const totalCount = getTag(xml, 'totalCount');
-      const resultCode = getTag(xml, 'resultCode');
-      const resultMsg = getTag(xml, 'resultMsg');
-      const itemCount = (xml.match(/<item>/g) || []).length;
-      const snippet = xml.substring(0, 500);
-      results.push({ operation: op, resultCode, resultMsg, totalCount, itemCount, snippet });
+  // 1. 파라미터 없이 (기준선)
+  results.push(await tryCall(apiKey, {}, '파라미터 없음'));
 
-      // 데이터 있으면 중단
-      if (parseInt(totalCount) > 0) break;
-    } catch (e) {
-      results.push({ operation: op, error: e.message });
-    }
+  // 2. siDoCd 숫자 코드
+  for (const { name, code } of SIDO_CODES) {
+    results.push(await tryCall(apiKey, { siDoCd: code }, `siDoCd=${code}(${name})`));
+    if (results[results.length - 1].totalCount > 0) break;
   }
 
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify({ keyInfo, results }, null, 2),
-  };
+  // 3. siDoCdNm 한글 이름 (기존 방식)
+  results.push(await tryCall(apiKey, { siDoCdNm: '서울특별시' }, 'siDoCdNm=서울특별시'));
+
+  // 4. 기관명 검색
+  results.push(await tryCall(apiKey, { ltcInsttNm: '실버' }, 'ltcInsttNm=실버'));
+
+  return { statusCode: 200, headers, body: JSON.stringify(results, null, 2) };
 };
+
+async function tryCall(apiKey, extra, label) {
+  const params = new URLSearchParams({ serviceKey: apiKey, pageNo: '1', numOfRows: '3', ...extra });
+  const url = `https://${API_HOST}${SERVICE}/${OP}?${params}`;
+  try {
+    const xml = await fetchXml(url);
+    return {
+      label,
+      totalCount: parseInt(getTag(xml, 'totalCount') || '0'),
+      resultCode: getTag(xml, 'resultCode'),
+      itemCount: (xml.match(/<item>/g) || []).length,
+      snippet: xml.substring(0, 400),
+    };
+  } catch (e) {
+    return { label, error: e.message };
+  }
+}
 
 function getTag(xml, tag) {
   const m = xml.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`));
@@ -69,7 +72,7 @@ function fetchXml(url) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
       const chunks = [];
-      res.on('data', (chunk) => chunks.push(chunk));
+      res.on('data', c => chunks.push(c));
       res.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
       res.on('error', reject);
     }).on('error', reject);
