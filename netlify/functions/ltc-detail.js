@@ -13,7 +13,7 @@
 const https = require('https');
 
 const API_HOST = 'apis.data.go.kr';
-const DETAIL_PATH = '/B550928/getLtcInsttDetailInfoService02/getLtcInsttDetailInfo02';
+const DETAIL_PATH = '/B550928/getLtcInsttDetailInfoService02/getGeneralSttusDetailInfoItem02';
 
 exports.handler = async function (event) {
   const headers = {
@@ -30,12 +30,16 @@ exports.handler = async function (event) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'LTC_API_KEY 미설정' }) };
   }
 
-  const { code } = event.queryStringParameters || {};
+  const { code, pttnCd } = event.queryStringParameters || {};
   if (!code) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'code 파라미터(기관기호) 필요' }) };
   }
 
-  const params = new URLSearchParams({ serviceKey: apiKey, longTermAdminSym: code });
+  const params = new URLSearchParams({
+    serviceKey: apiKey,
+    longTermAdminSym: code,
+    ...(pttnCd && { adminPttnCd: pttnCd }),
+  });
   const url = `https://${API_HOST}${DETAIL_PATH}?${params}`;
 
   try {
@@ -54,7 +58,7 @@ exports.handler = async function (event) {
 
     const detail = {
       name: getTag(xml, 'adminNm') || '',
-      address: getTag(xml, 'addr') || getTag(xml, 'roadNmAddr') || getTag(xml, 'lotNoAddr') || getTag(xml, 'detailAddr') || '',
+      address: getTag(xml, 'detailAddr') || '',
       tel,
       grade: getTag(xml, 'grtdRslt') || getTag(xml, 'evalRslt') || getTag(xml, 'rtngGd') || '',
       facilityTypeCode: getTag(xml, 'adminPttnCd') || '',

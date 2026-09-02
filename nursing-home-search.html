@@ -298,13 +298,14 @@
       const notice = data.notice ? `<p style="font-size:.82rem;color:var(--color-text-muted);margin-bottom:.5rem;">※ ${data.notice}</p>` : '';
       resultsEl.innerHTML = `<p style="margin-bottom:.5rem; color:var(--color-text-muted);">총 <strong>${total}</strong>개 기관 (클릭하면 상세 정보)</p>${notice}` +
         items.map((item, i) => `
-          <div class="facility-card" id="card-${i}" onclick="toggleDetail(${i}, '${item.code}')" style="cursor:pointer;">
+          <div class="facility-card" id="card-${i}" onclick="toggleDetail(${i}, '${item.code}', '${item.facilityTypeCode}')" style="cursor:pointer;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;">
               <h3 style="margin:0;">${item.name || '(기관명 없음)'}</h3>
               ${item.facilityType ? `<span style="font-size:.78rem;white-space:nowrap;background:var(--color-primary-light);color:var(--color-primary);padding:2px 8px;border-radius:999px;">${item.facilityType}</span>` : ''}
             </div>
             <div class="facility-meta" id="detail-${i}" style="display:none;margin-top:.75rem;">
-              <a href="https://www.longtermcare.or.kr/npbs/r/a/201/curationServiceSelectView.web?longTermNo=${item.code}" target="_blank" rel="noopener" style="font-size:.85rem;color:var(--color-primary);">🔍 노인장기요양보험 홈페이지에서 상세 정보 보기 →</a>
+              <span id="addr-${i}">📍 불러오는 중...</span>
+              <span id="tel-${i}"></span>
             </div>
           </div>
         `).join('');
@@ -312,13 +313,26 @@
       renderPagination(total);
     }
 
-    function toggleDetail(i, code) {
+    async function toggleDetail(i, code, pttnCd) {
       const detailEl = document.getElementById(`detail-${i}`);
       if (detailEl.style.display !== 'none') {
         detailEl.style.display = 'none';
         return;
       }
       detailEl.style.display = 'flex';
+
+      if (document.getElementById(`addr-${i}`).textContent === '📍 불러오는 중...') {
+        try {
+          const params = new URLSearchParams({ code });
+          if (pttnCd) params.set('pttnCd', pttnCd);
+          const res = await fetch(`/api/ltc/detail?${params}`);
+          const d = await res.json();
+          document.getElementById(`addr-${i}`).textContent = d.tel ? `📍 ${d.tel}` : '📍 전화번호 정보 없음';
+          document.getElementById(`tel-${i}`).innerHTML = `<a href="https://www.longtermcare.or.kr/npbs/r/a/201/curationServiceSelectView.web?longTermNo=${code}" target="_blank" rel="noopener" style="font-size:.82rem;color:var(--color-primary);">🔍 상세정보 →</a>`;
+        } catch {
+          document.getElementById(`addr-${i}`).textContent = '📍 정보 조회 실패';
+        }
+      }
     }
 
     function renderPagination(total) {
