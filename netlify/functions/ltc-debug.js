@@ -1,46 +1,32 @@
 /**
- * 장기요양기관 상세조회 오퍼레이션명 탐색 (임시)
+ * siDoCd 전수 탐색 01-50 (임시)
  */
-
 const https = require('https');
 const API_HOST = 'apis.data.go.kr';
-const DETAIL_SERVICE = '/B550928/getLtcInsttDetailInfoService02';
-
-const OPS = [
-  'getLtcInsttDetailInfo02',
-  'getLtcInsttDetailInfoList02',
-  'getLtcInsttDetail02',
-  'getDetailInfo02',
-  'getLtcInsttDetailInfoSeach02',
-  'getLtcInsttDetailInfoSearch02',
-  'getLtcInsttInfo02',
-  'getInsttDetailInfo02',
-];
+const SEARCH_PATH = '/B550928/searchLtcInsttService02/getLtcInsttSeachList02';
 
 exports.handler = async function (event) {
   const headers = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json; charset=utf-8' };
   const apiKey = process.env.LTC_API_KEY;
   if (!apiKey) return { statusCode: 500, headers, body: JSON.stringify({ error: 'LTC_API_KEY 없음' }) };
 
-  const code = (event.queryStringParameters || {}).code || '11168000009';
   const results = [];
-
-  for (const op of OPS) {
-    const params = new URLSearchParams({ serviceKey: apiKey, longTermAdminSym: code });
-    const url = `https://${API_HOST}${DETAIL_SERVICE}/${op}?${params}`;
+  for (let i = 1; i <= 50; i++) {
+    const code = String(i).padStart(2, '0');
+    const params = new URLSearchParams({ serviceKey: apiKey, pageNo: 1, numOfRows: 1, siDoCd: code });
+    const url = `https://${API_HOST}${SEARCH_PATH}?${params}`;
     try {
       const xml = await fetchXml(url);
-      const errMsg = getTag(xml, 'errMsg');
-      const returnAuthMsg = getTag(xml, 'returnAuthMsg');
-      const resultCode = getTag(xml, 'resultCode');
-      const totalCount = getTag(xml, 'totalCount');
-      const hasItem = xml.includes('<item>');
-      results.push({ op, errMsg, returnAuthMsg, resultCode, totalCount, hasItem, snippet: xml.substring(0, 500) });
+      const totalCount = parseInt(getTag(xml, 'totalCount') || '0', 10);
+      if (totalCount > 0) {
+        const itemMatch = xml.match(/<item>([\s\S]*?)<\/item>/);
+        const siDoCdVal = itemMatch ? getTag(itemMatch[1], 'siDoCd') : '';
+        results.push({ code, totalCount, siDoCdInItem: siDoCdVal });
+      }
     } catch (e) {
-      results.push({ op, error: e.message });
+      results.push({ code, error: e.message });
     }
   }
-
   return { statusCode: 200, headers, body: JSON.stringify(results, null, 2) };
 };
 
