@@ -1,14 +1,23 @@
 /**
  * 장기요양기관 API 디버그 함수 (임시)
- * GET /.netlify/functions/ltc-debug?sido=서울특별시&sigungu=강남구
- * 실제 API 응답 원문(XML) + 파싱 결과를 그대로 반환
- * 디버깅 완료 후 삭제 예정
+ * GET /.netlify/functions/ltc-debug
+ * 여러 오퍼레이션명 + 파라미터 방식을 시도해 어떤 것이 데이터를 반환하는지 확인
  */
 
 const https = require('https');
 
 const API_HOST = 'apis.data.go.kr';
-const SEARCH_PATH = '/B550928/searchLtcInsttService02/getLtcInsttSeachList02';
+const SERVICE_BASE = '/B550928/searchLtcInsttService02';
+
+// 시도할 오퍼레이션명 목록
+const OPERATIONS = [
+  'getLtcInsttSeachList02',   // 우리가 쓰던 것 (Seach 오타)
+  'getLtcInsttSearchList02',  // 정상 철자
+  'getLtcInsttList02',
+  'getLtcInsttSeachList',
+  'getLtcInsttSearchList',
+  'getSearchList',
+];
 
 exports.handler = async function (event) {
   const headers = {
@@ -16,47 +25,39 @@ exports.handler = async function (event) {
     'Content-Type': 'application/json; charset=utf-8',
   };
 
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers };
-  }
-
   const apiKey = process.env.LTC_API_KEY;
   if (!apiKey) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'LTC_API_KEY 없음' }) };
   }
 
-  const { sido = '서울특별시', sigungu = '강남구' } = event.queryStringParameters || {};
-
-  // 두 가지 파라미터 방식 모두 시도
-  const paramVariants = [
-    { siDoCdNm: sido, siGunGuCdNm: sigungu },
-    { siDoCdNm: sido },
-    {},
-  ];
+  const keyInfo = `길이=${apiKey.length}, 앞4자=${apiKey.substring(0, 4)}, 뒤4자=${apiKey.slice(-4)}`;
 
   const results = [];
 
-  for (const extra of paramVariants) {
-    const params = new URLSearchParams({
-      serviceKey: apiKey,
-      pageNo: '1',
-      numOfRows: '3',
-      ...extra,
-    });
-    const url = `https://${API_HOST}${SEARCH_PATH}?${params}`;
+  for (const op of OPERATIONS) {
+    // 파라미터 없이 전국 조회 (가장 넓은 조건)
+    const url = `https://${API_HOST}${SERVICE_BASE}/${op}?serviceKey=${apiKey}&pageNo=1&numOfRows=3`;
     try {
       const xml = await fetchXml(url);
-      const snippet = xml.substring(0, 2000);
-      const itemCount = (xml.match(/<item>/g) || []).length;
       const totalCount = getTag(xml, 'totalCount');
       const resultCode = getTag(xml, 'resultCode');
-      results.push({ params: Object.keys(extra).length ? extra : '(파라미터 없음)', resultCode, totalCount, itemCount, xmlSnippet: snippet });
+      const resultMsg = getTag(xml, 'resultMsg');
+      const itemCount = (xml.match(/<item>/g) || []).length;
+      const snippet = xml.substring(0, 500);
+      results.push({ operation: op, resultCode, resultMsg, totalCount, itemCount, snippet });
+
+      // 데이터 있으면 중단
+      if (parseInt(totalCount) > 0) break;
     } catch (e) {
-      results.push({ params: extra, error: e.message });
+      results.push({ operation: op, error: e.message });
     }
   }
 
-  return { statusCode: 200, headers, body: JSON.stringify(results, null, 2) };
+  return {
+    statusCode: 200,
+    headers,
+    body: JSON.stringify({ keyInfo, results }, null, 2),
+  };
 };
 
 function getTag(xml, tag) {
