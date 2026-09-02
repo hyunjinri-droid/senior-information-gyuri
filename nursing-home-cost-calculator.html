@@ -74,7 +74,7 @@
           <label class="form-label" for="facilityType">시설 유형</label>
           <select class="form-select" id="facilityType">
             <option value="요양원">노인요양시설 (요양원)</option>
-            <option value="공동생활가정">노인요양공동생활가정</option>
+            <option value="공동생활가정" disabled>노인요양공동생활가정 (수가 확인 중)</option>
           </select>
         </div>
 
@@ -97,7 +97,13 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="nonCoveredFee">월 비급여 예상 금액 (원, 선택)</label>
+          <label class="form-label" for="days">입소 일수 (일)</label>
+          <input type="number" class="form-select" id="days" value="30" min="1" max="31" step="1">
+          <p style="font-size:.82rem;color:var(--color-text-muted);margin-top:.35rem;">실제 청구는 1일 수가 × 입소일수입니다. 월마다 달라질 수 있습니다.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="nonCoveredFee">비급여 예상 금액 (원, 선택)</label>
           <input type="number" class="form-select" id="nonCoveredFee" placeholder="예: 150000 (식재료비+이미용비 등)" min="0" step="10000">
           <p style="font-size:.82rem;color:var(--color-text-muted);margin-top:.35rem;">식재료비(10~15만), 이미용비·세탁비(2~5만) 등 시설마다 다릅니다. 입소 전 명세서를 확인하세요.</p>
         </div>
@@ -261,19 +267,21 @@
       const facilityType = getVal('facilityType');
       const reductionLevel = document.querySelector('input[name="reductionLevel"]:checked')?.value || 'normal';
       const nonCoveredFee = parseInt(document.getElementById('nonCoveredFee').value) || 0;
+      const days = parseInt(document.getElementById('days').value) || 30;
 
       if (!grade) { alert('등급을 선택해주세요.'); return; }
 
-      const result = calcNursingHomeCopay({ grade, facilityType, reductionLevel, nonCoveredFee });
+      const result = calcNursingHomeCopay({ grade, facilityType, reductionLevel, nonCoveredFee, days });
       if (!result) { alert('계산 중 오류가 발생했습니다.'); return; }
 
       document.getElementById('copayResult').textContent = formatKRW(result.copay);
       const nonCoveredRow = nonCoveredFee > 0
         ? `<p>비급여 예상 금액: <strong>${formatKRW(nonCoveredFee)}</strong></p>
-           <p style="border-top:1px solid var(--color-border);padding-top:.5rem;margin-top:.5rem;">월 총 예상 부담: <strong style="font-size:1.1rem;color:var(--color-primary);">${formatKRW(result.totalMonthly)}</strong></p>`
+           <p style="border-top:1px solid var(--color-border);padding-top:.5rem;margin-top:.5rem;">총 예상 부담: <strong style="font-size:1.1rem;color:var(--color-primary);">${formatKRW(result.totalMonthly)}</strong></p>`
         : '';
       document.getElementById('resultDetail').innerHTML = `
-        <p>월 장기요양 수가: <strong>${formatKRW(result.totalFee)}</strong></p>
+        <p style="font-size:.78rem;color:var(--color-text-muted);margin-bottom:.5rem;">${result.rateYear}년 고시 · ${result.days}일 기준</p>
+        <p>급여 비용 합계: <strong>${formatKRW(result.totalFee)}</strong></p>
         <p>본인부담률: <strong>${formatPercent(result.copayRate)}</strong></p>
         <p>국가 지원금: <strong>${formatKRW(result.governmentSupport)}</strong></p>
         ${nonCoveredRow}
