@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>요양원 본인부담금 계산기 — 시니어 정보</title>
   <link rel="canonical" href="https://senior.information-gyuri.com/nursing-home-cost-calculator.html">
-  <meta name="description" content="장기요양등급별 요양원 월 본인부담금을 계산해보세요. 2024년 건강보험공단 기준.">
+  <meta name="description" content="장기요양등급별 요양원 월 본인부담금을 계산해보세요. 시설급여 전 등급 20% · 감경 0~12% · 비급여 합산까지 (2026년 기준).">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/common.css">
@@ -52,7 +52,7 @@
     <div class="container">
 
       <div class="alert alert-info" style="margin-bottom:1.5rem;">
-        2026년 장기요양 수가 기준입니다. 식재료비·이미용비 등 비급여 항목은 별도입니다.
+        2026년 장기요양 시설급여 수가 기준입니다. 시설급여 본인부담률은 전 등급 <strong>20%</strong>입니다.
       </div>
 
       <div class="card">
@@ -79,38 +79,60 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">
-            <input type="checkbox" id="isLowIncome" style="margin-right:.4rem;">
-            의료급여 수급자 또는 기초생활수급자 (감경 6%)
-          </label>
+          <label class="form-label">감경 구분</label>
+          <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.4rem;">
+            <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;">
+              <input type="radio" name="reductionLevel" value="normal" checked> 일반 (20%)
+            </label>
+            <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;">
+              <input type="radio" name="reductionLevel" value="reduction40"> 감경 40% — 보험료 하위 25~50% (12%)
+            </label>
+            <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;">
+              <input type="radio" name="reductionLevel" value="reduction60"> 감경 60% — 보험료 하위 25% 이하 (8%)
+            </label>
+            <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;">
+              <input type="radio" name="reductionLevel" value="exempt"> 면제 — 기초생활수급자(생계·의료급여) (0%)
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="nonCoveredFee">월 비급여 예상 금액 (원, 선택)</label>
+          <input type="number" class="form-select" id="nonCoveredFee" placeholder="예: 150000 (식재료비+이미용비 등)" min="0" step="10000">
+          <p style="font-size:.82rem;color:var(--color-text-muted);margin-top:.35rem;">식재료비(10~15만), 이미용비·세탁비(2~5만) 등 시설마다 다릅니다. 입소 전 명세서를 확인하세요.</p>
         </div>
 
         <button class="btn btn-primary" onclick="calculate()" style="width:100%;">계산하기</button>
       </div>
 
       <div class="result-box" id="resultBox">
-        <div class="result-label">월 본인부담금 (예상)</div>
+        <div class="result-label">월 급여 본인부담금 (예상)</div>
         <div class="result-value" id="copayResult">-</div>
         <div id="resultDetail" style="margin-top:1rem; font-size:.9rem; color:var(--color-text-muted);"></div>
       </div>
 
       <div class="card" style="margin-top:2rem;">
-        <h2 class="section-title">등급별 본인부담률 요약</h2>
-        <table class="result-table">
-          <thead>
-            <tr>
-              <th>등급</th>
-              <th>일반 부담률</th>
-              <th>감경 대상 부담률</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>1~2등급</td><td>20%</td><td>6%</td></tr>
-            <tr><td>3~5등급</td><td>15%</td><td>6%</td></tr>
-          </tbody>
-        </table>
+        <h2 class="section-title">시설급여 본인부담률 요약 (2026년)</h2>
+        <div style="overflow-x:auto;">
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>구분</th>
+                <th>부담률</th>
+                <th>대상</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>일반</td><td><strong>20%</strong></td><td>일반 수급자 (전 등급 동일)</td></tr>
+              <tr><td>감경 40%</td><td><strong>12%</strong></td><td>보험료 하위 25~50% 등</td></tr>
+              <tr><td>감경 60%</td><td><strong>8%</strong></td><td>보험료 하위 25% 이하 등</td></tr>
+              <tr><td>면제</td><td><strong>0%</strong></td><td>기초생활수급자(생계·의료급여)</td></tr>
+            </tbody>
+          </table>
+        </div>
         <p style="font-size:.85rem; color:var(--color-text-muted); margin-top:.5rem;">
-          * 감경 대상: 의료급여 수급자, 기초생활수급자(생계·의료급여), 차상위계층 중 일부
+          * 시설급여(요양원·공동생활가정) 기준. 재가급여(방문요양 등)는 15% 기준이 적용됩니다.<br>
+          * 감경 신청: 국민건강보험공단 ☎ 1577-1000
         </p>
       </div>
 
@@ -120,9 +142,9 @@
     <div style="margin-top:2.5rem;padding:0 var(--spacing-md);">
       <div class="card">
         <h2 class="section-title">요양원 비용, 어떻게 구성되나요?</h2>
-        <p style="line-height:1.9;margin-bottom:1rem;">요양원(노인요양시설)의 월 비용은 크게 <strong>장기요양 급여비용(본인부담금)</strong>과 <strong>비급여 항목</strong>으로 나뉩니다. 장기요양보험에서 급여비의 80~85%를 지원하므로 실제 납부액은 공식 비용보다 훨씬 적습니다.</p>
+        <p style="line-height:1.9;margin-bottom:1rem;">요양원(노인요양시설)의 월 비용은 크게 <strong>장기요양 급여비용(본인부담금)</strong>과 <strong>비급여 항목</strong>으로 나뉩니다. 시설급여 본인부담률은 2026년 기준 <strong>전 등급 20%</strong>이며, 장기요양보험에서 나머지 80%를 지원합니다.</p>
         <ul style="padding-left:1.4rem;line-height:2.1;margin-bottom:1rem;">
-          <li><strong>급여 본인부담금</strong> — 등급에 따라 월 35~65만 원 수준 (일반 기준 15~20%)</li>
+          <li><strong>급여 본인부담금</strong> — 등급에 따라 월 39~57만 원 수준 (일반 기준 20%)</li>
           <li><strong>식재료비</strong> — 월 10~15만 원 수준 (시설마다 상이)</li>
           <li><strong>이미용비·세탁비</strong> — 월 2~5만 원 수준</li>
           <li><strong>의약품비·치료재료비</strong> — 처방에 따라 변동</li>
@@ -140,9 +162,10 @@
               <tr><th>감경 유형</th><th>부담률</th><th>해당 대상</th></tr>
             </thead>
             <tbody>
-              <tr><td>일반</td><td>15~20%</td><td>일반 수급자</td></tr>
-              <tr><td>경감 1단계</td><td>9~12%</td><td>차상위계층 중 일부</td></tr>
-              <tr><td>경감 2단계</td><td>6%</td><td>의료급여 수급자, 기초생활수급자(생계·의료급여)</td></tr>
+              <tr><td>일반</td><td><strong>20%</strong></td><td>일반 수급자 (전 등급 동일)</td></tr>
+              <tr><td>감경 40%</td><td><strong>12%</strong></td><td>보험료 하위 25~50% 등</td></tr>
+              <tr><td>감경 60%</td><td><strong>8%</strong></td><td>보험료 하위 25% 이하 등</td></tr>
+              <tr><td>면제</td><td><strong>0%</strong></td><td>기초생활수급자(생계·의료급여)</td></tr>
             </tbody>
           </table>
         </div>
@@ -236,21 +259,26 @@
     function calculate() {
       const grade = parseInt(getVal('grade'));
       const facilityType = getVal('facilityType');
-      const isLowIncome = document.getElementById('isLowIncome').checked;
+      const reductionLevel = document.querySelector('input[name="reductionLevel"]:checked')?.value || 'normal';
+      const nonCoveredFee = parseInt(document.getElementById('nonCoveredFee').value) || 0;
 
       if (!grade) { alert('등급을 선택해주세요.'); return; }
 
-      const result = calcNursingHomeCopay({ grade, facilityType, isLowIncome });
+      const result = calcNursingHomeCopay({ grade, facilityType, reductionLevel, nonCoveredFee });
       if (!result) { alert('계산 중 오류가 발생했습니다.'); return; }
 
       document.getElementById('copayResult').textContent = formatKRW(result.copay);
+      const nonCoveredRow = nonCoveredFee > 0
+        ? `<p>비급여 예상 금액: <strong>${formatKRW(nonCoveredFee)}</strong></p>
+           <p style="border-top:1px solid var(--color-border);padding-top:.5rem;margin-top:.5rem;">월 총 예상 부담: <strong style="font-size:1.1rem;color:var(--color-primary);">${formatKRW(result.totalMonthly)}</strong></p>`
+        : '';
       document.getElementById('resultDetail').innerHTML = `
         <p>월 장기요양 수가: <strong>${formatKRW(result.totalFee)}</strong></p>
         <p>본인부담률: <strong>${formatPercent(result.copayRate)}</strong></p>
         <p>국가 지원금: <strong>${formatKRW(result.governmentSupport)}</strong></p>
+        ${nonCoveredRow}
       `;
 
-      showResult('resultBox', document.getElementById('resultBox').innerHTML);
       document.getElementById('resultBox').classList.add('visible');
     }
   </script>
