@@ -5,15 +5,19 @@
 /* ===========================
    요양원 본인부담금 계산
    =========================== */
-const LTC_COPAY_RATE = {
-  1: 0.20,  // 1~2등급: 20%
-  2: 0.20,
-  3: 0.15,  // 3~5등급: 15%
-  4: 0.15,
-  5: 0.15,
+// 시설급여(요양원·공동생활가정)는 전 등급 20% flat (2026년 기준)
+const LTC_FACILITY_COPAY_RATE = 0.20;
+
+// 감경 단계별 부담률 (시설급여 기준, 2026년)
+// 'normal'=일반, 'reduction40'=감경40%(보험료 하위25~50%), 'reduction60'=감경60%(하위25%이하), 'exempt'=기초수급자면제
+const LTC_REDUCTION_RATE = {
+  normal:      0.20,
+  reduction40: 0.12,  // 20% × (1-0.40)
+  reduction60: 0.08,  // 20% × (1-0.60)
+  exempt:      0.00,  // 기초생활수급자(의료·생계급여) 면제
 };
 
-// 2024년 기준 장기요양 수가 (월, 원) — 실제 값은 건보공단 고시 기준
+// 2026년 기준 장기요양 시설급여 수가 (월, 원) — 건보공단 고시 기준
 const LTC_MONTHLY_FEE = {
   1: { 요양원: 2870000, 공동생활가정: 2520000 },
   2: { 요양원: 2660000, 공동생활가정: 2340000 },
@@ -22,17 +26,20 @@ const LTC_MONTHLY_FEE = {
   5: { 요양원: 1940000, 공동생활가정: 1700000 },
 };
 
-function calcNursingHomeCopay({ grade, facilityType, isLowIncome }) {
+function calcNursingHomeCopay({ grade, facilityType, reductionLevel = 'normal', nonCoveredFee = 0 }) {
   const fee = LTC_MONTHLY_FEE[grade]?.[facilityType];
   if (!fee) return null;
 
-  const rate = isLowIncome ? 0.06 : LTC_COPAY_RATE[grade];
+  const rate = LTC_REDUCTION_RATE[reductionLevel] ?? LTC_FACILITY_COPAY_RATE;
   const copay = Math.round(fee * rate);
+  const total = copay + nonCoveredFee;
 
   return {
     totalFee: fee,
     copayRate: rate,
     copay,
+    nonCoveredFee,
+    totalMonthly: total,
     governmentSupport: fee - copay,
   };
 }
