@@ -5,6 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>장기요양기관 찾기 — 시니어 정보</title>
   <link rel="canonical" href="https://senior.information-gyuri.com/nursing-home-search.html">
+  <meta property="og:title" content="장기요양기관 찾기 — 시니어 정보">
+  <meta property="og:description" content="지역별 장기요양기관(요양원, 공동생활가정)을 검색하고 평가등급을 확인하세요.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://senior.information-gyuri.com/nursing-home-search.html">
+  <meta property="og:image" content="https://senior.information-gyuri.com/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="시니어 정보">
+  <meta property="og:locale" content="ko_KR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="장기요양기관 찾기 — 시니어 정보">
+  <meta name="twitter:description" content="지역별 장기요양기관(요양원, 공동생활가정)을 검색하고 평가등급을 확인하세요.">
+  <meta name="twitter:image" content="https://senior.information-gyuri.com/og-image.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "장기요양기관 찾기 — 시니어 정보",
+    "description": "지역별 장기요양기관(요양원, 공동생활가정)을 검색하고 평가등급을 확인하세요.",
+    "url": "https://senior.information-gyuri.com/nursing-home-search.html",
+    "image": "https://senior.information-gyuri.com/og-image.png",
+    "inLanguage": "ko",
+    "publisher": {
+      "@type": "Organization",
+      "name": "시니어 정보",
+      "url": "https://senior.information-gyuri.com"
+    }
+  }
+  </script>
   <meta name="description" content="지역별 장기요양기관(요양원, 공동생활가정)을 검색하고 평가등급을 확인하세요.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
@@ -269,7 +298,7 @@
       const notice = data.notice ? `<p style="font-size:.82rem;color:var(--color-text-muted);margin-bottom:.5rem;">※ ${data.notice}</p>` : '';
       resultsEl.innerHTML = `<p style="margin-bottom:.5rem; color:var(--color-text-muted);">총 <strong>${total}</strong>개 기관 (클릭하면 상세 정보)</p>${notice}` +
         items.map((item, i) => `
-          <div class="facility-card" id="card-${i}" onclick="toggleDetail(${i}, '${item.code}')" style="cursor:pointer;">
+          <div class="facility-card" id="card-${i}" onclick="toggleDetail(${i}, '${item.code}', '${item.facilityTypeCode}')" style="cursor:pointer;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;">
               <h3 style="margin:0;">${item.name || '(기관명 없음)'}</h3>
               ${item.facilityType ? `<span style="font-size:.78rem;white-space:nowrap;background:var(--color-primary-light);color:var(--color-primary);padding:2px 8px;border-radius:999px;">${item.facilityType}</span>` : ''}
@@ -277,7 +306,6 @@
             <div class="facility-meta" id="detail-${i}" style="display:none;margin-top:.75rem;">
               <span id="addr-${i}">📍 불러오는 중...</span>
               <span id="tel-${i}"></span>
-              <span id="grade-${i}"></span>
             </div>
           </div>
         `).join('');
@@ -285,7 +313,7 @@
       renderPagination(total);
     }
 
-    async function toggleDetail(i, code) {
+    async function toggleDetail(i, code, pttnCd) {
       const detailEl = document.getElementById(`detail-${i}`);
       if (detailEl.style.display !== 'none') {
         detailEl.style.display = 'none';
@@ -295,13 +323,14 @@
 
       if (document.getElementById(`addr-${i}`).textContent === '📍 불러오는 중...') {
         try {
-          const res = await fetch(`/api/ltc/detail?code=${encodeURIComponent(code)}`);
+          const params = new URLSearchParams({ code });
+          if (pttnCd) params.set('pttnCd', pttnCd);
+          const res = await fetch(`/api/ltc/detail?${params}`);
           const d = await res.json();
-          document.getElementById(`addr-${i}`).textContent = d.address ? `📍 ${d.address}` : '📍 주소 정보 없음';
-          document.getElementById(`tel-${i}`).textContent = d.tel ? `📞 ${d.tel}` : '';
-          document.getElementById(`grade-${i}`).textContent = d.grade ? `평가등급: ${d.grade}` : '';
+          document.getElementById(`addr-${i}`).textContent = d.tel ? `📍 ${d.tel}` : '📍 전화번호 정보 없음';
+          document.getElementById(`tel-${i}`).innerHTML = `<a href="https://www.longtermcare.or.kr/npbs/r/a/201/curationServiceSelectView.web?longTermNo=${code}" target="_blank" rel="noopener" style="font-size:.82rem;color:var(--color-primary);">🔍 상세정보 →</a>`;
         } catch {
-          document.getElementById(`addr-${i}`).textContent = '📍 상세 정보 조회 실패';
+          document.getElementById(`addr-${i}`).textContent = '📍 정보 조회 실패';
         }
       }
     }
