@@ -72,9 +72,10 @@
 
         <div class="form-group">
           <label class="form-label">
-            <input type="checkbox" id="isDisabled" style="margin-right:.4rem;">
-            장애인·65세 이상·중증질환자 포함 (한도 없음 적용)
+            <input type="checkbox" id="isNoLimitTarget" style="margin-right:.4rem;" checked>
+            본인·65세 이상·장애인 의료비 (한도 없음 적용)
           </label>
+          <p style="font-size:.82rem;color:var(--color-text-muted);margin-top:.3rem;">부모님 의료비는 대부분 이 항목에 해당합니다. 일반 의료비는 체크 해제 시 700만원 한도 적용.</p>
         </div>
 
         <button class="btn btn-primary" onclick="calcDeduction()" style="width:100%;">계산하기</button>
@@ -197,12 +198,12 @@
     function calcDeduction() {
       const annualIncome = getNumVal('annualIncome');
       const medicalExpense = getNumVal('medicalExpense');
-      const isDisabled = document.getElementById('isDisabled').checked;
+      const isNoLimitTarget = document.getElementById('isNoLimitTarget').checked;
 
       if (!annualIncome) { alert('총급여액을 입력해주세요.'); return; }
       if (!medicalExpense) { alert('의료비를 입력해주세요.'); return; }
 
-      const result = calcMedicalDeduction({ annualIncome, medicalExpense, isDisabled });
+      const result = calcMedicalDeduction({ annualIncome, medicalExpense, isNoLimitTarget });
       const box = document.getElementById('deductionResult');
       const text = document.getElementById('deductionResultText');
 

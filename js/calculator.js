@@ -5,54 +5,51 @@
 /* ===========================
    요양원 본인부담금 계산
    =========================== */
-// 시설급여(요양원·공동생활가정)는 전 등급 20% flat (2026년 기준)
-const LTC_FACILITY_COPAY_RATE = 0.20;
+const RATE_YEAR = 2026;
+
+// 2026년 장기요양급여비용 고시 — 노인요양시설 1일 급여비용(원)
+// 3~5등급은 동일 수가(81,540원). 공동생활가정 수가는 고시 미확인 — 옵션 비활성화.
+const LTC_DAILY_FEE = {
+  요양원: { 1: 93070, 2: 86340, 3: 81540, 4: 81540, 5: 81540 },
+};
 
 // 감경 단계별 부담률 (시설급여 기준, 2026년)
-// 'normal'=일반, 'reduction40'=감경40%(보험료 하위25~50%), 'reduction60'=감경60%(하위25%이하), 'exempt'=기초수급자면제
 const LTC_REDUCTION_RATE = {
   normal:      0.20,
-  reduction40: 0.12,  // 20% × (1-0.40)
-  reduction60: 0.08,  // 20% × (1-0.60)
-  exempt:      0.00,  // 기초생활수급자(의료·생계급여) 면제
+  reduction40: 0.12,  // 차상위 40% 감경
+  reduction60: 0.08,  // 차상위 60% 감경
+  exempt:      0.00,  // 기초생활·의료급여 수급자 면제
 };
 
-// 2026년 기준 장기요양 시설급여 수가 (월, 원) — 건보공단 고시 기준
-const LTC_MONTHLY_FEE = {
-  1: { 요양원: 2870000, 공동생활가정: 2520000 },
-  2: { 요양원: 2660000, 공동생활가정: 2340000 },
-  3: { 요양원: 2270000, 공동생활가정: 1990000 },
-  4: { 요양원: 2100000, 공동생활가정: 1840000 },
-  5: { 요양원: 1940000, 공동생활가정: 1700000 },
-};
+function calcNursingHomeCopay({ grade, facilityType, reductionLevel = 'normal', nonCoveredFee = 0, days = 30 }) {
+  const daily = LTC_DAILY_FEE[facilityType]?.[grade];
+  if (!daily) return null;
 
-function calcNursingHomeCopay({ grade, facilityType, reductionLevel = 'normal', nonCoveredFee = 0 }) {
-  const fee = LTC_MONTHLY_FEE[grade]?.[facilityType];
-  if (!fee) return null;
-
-  const rate = LTC_REDUCTION_RATE[reductionLevel] ?? LTC_FACILITY_COPAY_RATE;
-  const copay = Math.round(fee * rate);
-  const total = copay + nonCoveredFee;
+  const totalFee = daily * days;
+  const rate = LTC_REDUCTION_RATE[reductionLevel] ?? LTC_REDUCTION_RATE.normal;
+  const copay = Math.round(totalFee * rate);
 
   return {
-    totalFee: fee,
+    rateYear: RATE_YEAR,
+    days,
+    totalFee,
     copayRate: rate,
     copay,
     nonCoveredFee,
-    totalMonthly: total,
-    governmentSupport: fee - copay,
+    totalMonthly: copay + nonCoveredFee,
+    governmentSupport: totalFee - copay,
   };
 }
 
 /* ===========================
    의료비 공제 계산
    =========================== */
-function calcMedicalDeduction({ annualIncome, medicalExpense, isDisabled }) {
+function calcMedicalDeduction({ annualIncome, medicalExpense, isNoLimitTarget }) {
   const threshold = annualIncome * 0.03;
   const deductibleBase = Math.max(0, medicalExpense - threshold);
 
-  // 장애인·65세 이상 등 특정 의료비는 한도 없음, 일반은 700만원 한도
-  const limit = isDisabled ? Infinity : 7000000;
+  // 본인·65세 이상·장애인 의료비는 한도 없음, 일반은 700만원 한도
+  const limit = isNoLimitTarget ? Infinity : 7000000;
   const deductibleAmount = Math.min(deductibleBase, limit);
   const taxSaving = Math.round(deductibleAmount * 0.15);
 
@@ -67,8 +64,8 @@ function calcMedicalDeduction({ annualIncome, medicalExpense, isDisabled }) {
 /* ===========================
    기초연금 수급 가능 여부 (간이 판정)
    =========================== */
-const BASIC_PENSION_THRESHOLD_SINGLE = 2130000;   // 2024년 기준 (원/월)
-const BASIC_PENSION_THRESHOLD_COUPLE = 3408000;
+const BASIC_PENSION_THRESHOLD_SINGLE = 2470000;   // 2026년 기준 (원/월)
+const BASIC_PENSION_THRESHOLD_COUPLE = 3952000;
 
 function checkBasicPensionEligibility({ monthlyIncome, isCouple }) {
   const threshold = isCouple
