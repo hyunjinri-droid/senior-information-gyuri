@@ -1,23 +1,10 @@
 /**
- * 시도 코드별 검색 결과 건수 확인 (임시)
+ * siDoCd 코드 전수 탐색 (임시)
  */
 
 const https = require('https');
 const API_HOST = 'apis.data.go.kr';
 const SEARCH_PATH = '/B550928/searchLtcInsttService02/getLtcInsttSeachList02';
-
-// 테스트할 시도 코드
-const SIDO_TESTS = [
-  { name: '서울', code: '11' },
-  { name: '부산', code: '21' },
-  { name: '대구', code: '22' },
-  { name: '인천', code: '23' },
-  { name: '광주', code: '24' },
-  { name: '대전', code: '25' },
-  { name: '울산', code: '26' },
-  { name: '세종', code: '29' },
-  { name: '경기', code: '31' },
-];
 
 exports.handler = async function (event) {
   const headers = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json; charset=utf-8' };
@@ -25,17 +12,23 @@ exports.handler = async function (event) {
   if (!apiKey) return { statusCode: 500, headers, body: JSON.stringify({ error: 'LTC_API_KEY 없음' }) };
 
   const results = [];
-  for (const { name, code } of SIDO_TESTS) {
+  // 10~40 범위 전수 탐색
+  for (let i = 10; i <= 40; i++) {
+    const code = String(i).padStart(2, '0');
     const params = new URLSearchParams({ serviceKey: apiKey, pageNo: 1, numOfRows: 1, siDoCd: code });
     const url = `https://${API_HOST}${SEARCH_PATH}?${params}`;
     try {
       const xml = await fetchXml(url);
       const resultCode = getTag(xml, 'resultCode');
-      const totalCount = getTag(xml, 'totalCount');
-      const errMsg = getTag(xml, 'errMsg');
-      results.push({ name, code, resultCode, totalCount, errMsg });
+      const totalCount = parseInt(getTag(xml, 'totalCount') || '0', 10);
+      if (totalCount > 0) {
+        // 첫 번째 item에서 siDoCd, siGunGuCd 확인
+        const itemMatch = xml.match(/<item>([\s\S]*?)<\/item>/);
+        const siDoCdNm = itemMatch ? getTag(itemMatch[1], 'siDoCdNm') : '';
+        results.push({ code, resultCode, totalCount, siDoCdNm });
+      }
     } catch (e) {
-      results.push({ name, code, error: e.message });
+      results.push({ code, error: e.message });
     }
   }
 
