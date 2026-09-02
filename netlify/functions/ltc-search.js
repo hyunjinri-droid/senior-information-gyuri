@@ -3,7 +3,8 @@
  * 국민건강보험공단_장기요양기관 검색 서비스 (B550928)
  *
  * End Point: https://apis.data.go.kr/B550928/searchLtcInsttService02/getLtcInsttSeachList02
- * 응답 형식: XML → 파싱 후 JSON으로 반환
+ * 필수 파라미터: siDoCd (2자리 숫자 코드)
+ * 선택 파라미터: siGunGuCd (3자리 숫자 코드)
  *
  * GET /.netlify/functions/ltc-search?sido=서울특별시&sigungu=강남구&pageIndex=1
  *
@@ -15,6 +16,47 @@ const https = require('https');
 const API_HOST = 'apis.data.go.kr';
 const SEARCH_PATH = '/B550928/searchLtcInsttService02/getLtcInsttSeachList02';
 const PAGE_SIZE = 10;
+
+// 시도 한글명 → 건보공단 시도코드 (2자리)
+const SIDO_CODE = {
+  '서울특별시': '11', '부산광역시': '21', '대구광역시': '22',
+  '인천광역시': '23', '광주광역시': '24', '대전광역시': '25',
+  '울산광역시': '26', '세종특별자치시': '29', '경기도': '31',
+  '강원특별자치도': '32', '강원도': '32', '충청북도': '33',
+  '충청남도': '34', '전북특별자치도': '35', '전라북도': '35',
+  '전라남도': '36', '경상북도': '37', '경상남도': '38',
+  '제주특별자치도': '39',
+};
+
+// 시군구 한글명 → 건보공단 시군구코드 (3자리)
+// 건보공단 코드 = 표준 행정구역 코드 앞 3자리(시도 제외)
+const SIGUNGU_CODE = {
+  // 서울 (11)
+  '종로구':'110','중구':'140','용산구':'170','성동구':'200','광진구':'215',
+  '동대문구':'230','중랑구':'260','성북구':'290','강북구':'305','도봉구':'320',
+  '노원구':'350','은평구':'380','서대문구':'410','마포구':'440','양천구':'470',
+  '강서구':'500','구로구':'530','금천구':'545','영등포구':'560','동작구':'590',
+  '관악구':'620','서초구':'650','강남구':'680','송파구':'710','강동구':'740',
+  // 부산 (21)
+  '중구':'010','서구':'020','동구':'030','영도구':'040','부산진구':'050',
+  '동래구':'060','남구':'070','북구':'080','해운대구':'090','사하구':'100',
+  '금정구':'110','강서구':'120','연제구':'130','수영구':'140','사상구':'150',
+  '기장군':'710',
+  // 대구 (22)
+  // '중구':'010','동구':'020','서구':'030','남구':'040','북구':'050',
+  // '수성구':'060','달서구':'070','달성군':'710','군위군':'720',
+  // 인천 (23)
+  // '중구':'010','동구':'020','미추홀구':'030','연수구':'040','남동구':'050',
+  // '부평구':'060','계양구':'070','서구':'080','강화군':'710','옹진군':'720',
+  // 경기 (31)
+  '수원시':'010','성남시':'130','의정부시':'150','안양시':'170','부천시':'190',
+  '광명시':'210','평택시':'220','동두천시':'250','안산시':'270','고양시':'280',
+  '과천시':'290','구리시':'310','남양주시':'360','오산시':'370','시흥시':'390',
+  '군포시':'410','의왕시':'430','하남시':'450','용인시':'460','파주시':'480',
+  '이천시':'500','안성시':'550','김포시':'570','화성시':'590','광주시':'610',
+  '양주시':'630','포천시':'650','여주시':'670','연천군':'800','가평군':'820',
+  '양평군':'830',
+};
 
 exports.handler = async function (event) {
   const headers = {
@@ -37,12 +79,23 @@ exports.handler = async function (event) {
 
   const { sido = '', sigungu = '', pageIndex = '1' } = event.queryStringParameters || {};
 
+  const siDoCd = SIDO_CODE[sido];
+  if (!siDoCd) {
+    return {
+      statusCode: 400,
+      headers,
+      body: JSON.stringify({ error: `지원하지 않는 시도입니다: ${sido}` }),
+    };
+  }
+
+  const siGunGuCd = SIGUNGU_CODE[sigungu];
+
   const params = new URLSearchParams({
     serviceKey: apiKey,
     pageNo: pageIndex,
     numOfRows: PAGE_SIZE,
-    ...(sido && { siDoCdNm: sido }),
-    ...(sigungu && { siGunGuCdNm: sigungu }),
+    siDoCd,
+    ...(siGunGuCd && { siGunGuCd }),
   });
 
   const url = `https://${API_HOST}${SEARCH_PATH}?${params}`;
@@ -50,7 +103,6 @@ exports.handler = async function (event) {
   try {
     const xml = await fetchXml(url);
 
-    // 공공데이터포털 API 오류 코드 확인
     const resultCode = getTag(xml, 'resultCode');
     if (resultCode && resultCode !== '00' && resultCode !== '0000') {
       const msg = getTag(xml, 'resultMsg') || '알 수 없는 오류';
@@ -63,6 +115,12 @@ exports.handler = async function (event) {
     }
 
     const result = parseSearchXml(xml);
+
+    // siGunGuCd가 없으면(미등록 시군구) 클라이언트측 이름 매칭으로 보완
+    if (sigungu && !siGunGuCd && result.items.length > 0) {
+      result.notice = `시군구 코드 미등록 (${sigungu}). 시도 전체 결과 표시 중.`;
+    }
+
     return {
       statusCode: 200,
       headers,
@@ -78,10 +136,6 @@ exports.handler = async function (event) {
   }
 };
 
-/**
- * XML 응답 파싱 (정규식 기반, 외부 라이브러리 없음)
- * getLtcInsttSeachList02 응답 구조 기준
- */
 function parseSearchXml(xml) {
   const totalCount = parseInt(getTag(xml, 'totalCount') || '0', 10);
   const pageNo = parseInt(getTag(xml, 'pageNo') || '1', 10);
@@ -93,37 +147,12 @@ function parseSearchXml(xml) {
   while ((match = itemRegex.exec(xml)) !== null) {
     const b = match[1];
     items.push({
-      // 기관명 — 여러 필드명 후보 시도
-      name: getTag(b, 'longtermCareNm')
-        || getTag(b, 'ltcInsttNm')
-        || getTag(b, 'instNm')
-        || getTag(b, 'fcltNm')
-        || '',
-      // 주소
-      address: getTag(b, 'addr')
-        || getTag(b, 'roadNmAddr')
-        || getTag(b, 'lotNoAddr')
-        || '',
-      // 전화번호
-      tel: getTag(b, 'telno')
-        || getTag(b, 'phoneNo')
-        || getTag(b, 'telNo')
-        || '',
-      // 평가등급
-      grade: getTag(b, 'grtdRslt')
-        || getTag(b, 'evalRslt')
-        || getTag(b, 'rtngGd')
-        || '',
-      // 기관유형 (시설급여/재가급여 등)
-      facilityType: getTag(b, 'longTermCareTypeNm')
-        || getTag(b, 'institClassNm')
-        || getTag(b, 'fcltScNm')
-        || '',
-      // 기관코드
-      code: getTag(b, 'ltcInsttCd')
-        || getTag(b, 'institCode')
-        || getTag(b, 'yadmCd')
-        || '',
+      name: getTag(b, 'adminNm') || getTag(b, 'longtermCareNm') || getTag(b, 'ltcInsttNm') || '',
+      address: getTag(b, 'addr') || getTag(b, 'roadNmAddr') || getTag(b, 'lotNoAddr') || getTag(b, 'detailAddr') || '',
+      tel: getTag(b, 'locTelNo') || getTag(b, 'telno') || getTag(b, 'telNo') || '',
+      grade: getTag(b, 'grtdRslt') || getTag(b, 'evalRslt') || getTag(b, 'rtngGd') || '',
+      facilityType: getTag(b, 'adminPttnCd') || getTag(b, 'longTermCareTypeNm') || getTag(b, 'institClassNm') || '',
+      code: getTag(b, 'longTermAdminSym') || getTag(b, 'ltcInsttCd') || getTag(b, 'institCode') || '',
     });
   }
 
