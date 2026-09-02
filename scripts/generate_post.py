@@ -10,6 +10,12 @@ from datetime import datetime, timezone, timedelta
 KST = timezone(timedelta(hours=9))
 today = datetime.now(KST).strftime('%Y-%m-%d')
 
+# 이미 통합 가이드가 있는 주제 — 자유 선택 시에도 중복 생성 금지
+BLOCKED_TOPICS = [
+    '낙상 예방', '낙상예방', 'fall prevention', '낙상',
+]
+
+
 TOPIC_LIST = [
     ("기초연금 수급자격·금액 완벽 정리 (2026년 기준)", "기초연금"),
     ("노인일자리사업 종류별 신청 방법과 급여", "노인일자리"),
@@ -20,7 +26,8 @@ TOPIC_LIST = [
     ("독거노인 돌봄서비스 신청 방법과 지원 내용", "복지정책"),
     ("장기요양 본인부담금 경감 대상과 신청 방법", "장기요양"),
     ("노인 건강검진 종류와 무료 검진 이용 방법", "의료비"),
-    ("부모님 낙상 예방을 위한 가정 환경 개선 방법", "복지정책"),
+    # 낙상예방은 fall-prevention-complete-guide.html로 통합 완료 — 목록에서 제거
+    # ("부모님 낙상 예방을 위한 가정 환경 개선 방법", "복지정책"),
     ("연말정산 부양가족 공제: 부모님 포함 방법", "의료비"),
     ("노인 주거 복지: 공공임대주택·노인복지주택 신청 방법", "복지정책"),
     ("장기요양 등급 외 판정 후 이용 가능한 서비스", "장기요양"),
@@ -64,6 +71,10 @@ def pick_topic(existing_titles):
     return remaining[0]
 
 
+def blocked_topics_str():
+    return ', '.join(f'"{k}"' for k in BLOCKED_TOPICS)
+
+
 def generate_post():
     client = anthropic.Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
 
@@ -86,6 +97,9 @@ def generate_post():
 
 ## 기발행 글 목록 (중복 금지)
 {existing_str}
+
+## 주제 선택 금지 목록 (이미 통합 가이드 존재)
+다음 키워드를 포함한 주제는 절대 선택하지 마세요: {blocked_topics_str()}
 
 ---
 
