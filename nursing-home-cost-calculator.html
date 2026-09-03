@@ -112,7 +112,7 @@
       </div>
 
       <div class="result-box" id="resultBox">
-        <div class="result-label">월 급여 본인부담금 (예상)</div>
+        <div class="result-label" id="resultLabel">월 급여 본인부담금 (예상)</div>
         <div class="result-value" id="copayResult">-</div>
         <div id="resultDetail" style="margin-top:1rem; font-size:.9rem; color:var(--color-text-muted);"></div>
       </div>
@@ -255,7 +255,7 @@
       <p style="margin-bottom:.5rem;"><a href="privacy-policy.html">개인정보처리방침</a></p>
       <div class="footer-disclaimer">
         본 계산기는 참고용이며, 실제 부담금은 기관 및 건강보험공단 확인이 필요합니다.
-        비급여 항목(식재료비, 이미용비 등)은 포함되지 않습니다.
+        비급여는 위에 입력하신 금액이 월 예상 총액에 합산됩니다. 실제 금액은 시설마다 다르니 입소 전 비급여 항목표로 확인하세요.
       </div>
     </div>
   </footer>
@@ -274,17 +274,24 @@
       const result = calcNursingHomeCopay({ grade, facilityType, reductionLevel, nonCoveredFee, days });
       if (!result) { alert('계산 중 오류가 발생했습니다.'); return; }
 
-      document.getElementById('copayResult').textContent = formatKRW(result.copay);
-      const nonCoveredRow = nonCoveredFee > 0
-        ? `<p>비급여 예상 금액: <strong>${formatKRW(nonCoveredFee)}</strong></p>
-           <p style="border-top:1px solid var(--color-border);padding-top:.5rem;margin-top:.5rem;">총 예상 부담: <strong style="font-size:1.1rem;color:var(--color-primary);">${formatKRW(result.totalMonthly)}</strong></p>`
+      if (nonCoveredFee > 0) {
+        document.getElementById('resultLabel').textContent = '월 예상 총액';
+        document.getElementById('copayResult').textContent = formatKRW(result.totalMonthly);
+      } else {
+        document.getElementById('resultLabel').textContent = '월 급여 본인부담금 (예상)';
+        document.getElementById('copayResult').textContent = formatKRW(result.copay);
+      }
+      const breakdown = nonCoveredFee > 0
+        ? `<table style="width:100%;border-collapse:collapse;margin-bottom:.75rem;">
+            <tr><td style="padding:.2rem 0;color:var(--color-text-muted);">월 급여 본인부담금</td><td style="text-align:right;font-weight:600;">${formatKRW(result.copay)}</td></tr>
+            <tr><td style="padding:.2rem 0;color:var(--color-text-muted);">비급여 (입력값)</td><td style="text-align:right;font-weight:600;">${formatKRW(nonCoveredFee)}</td></tr>
+            <tr style="border-top:1px solid var(--color-border);"><td style="padding:.4rem 0 .2rem;font-weight:700;">월 예상 총액</td><td style="text-align:right;font-weight:700;color:var(--color-primary);">${formatKRW(result.totalMonthly)}</td></tr>
+           </table>`
         : '';
       document.getElementById('resultDetail').innerHTML = `
-        <p style="font-size:.78rem;color:var(--color-text-muted);margin-bottom:.5rem;">${result.rateYear}년 고시 · ${result.days}일 기준</p>
-        <p>급여 비용 합계: <strong>${formatKRW(result.totalFee)}</strong></p>
-        <p>본인부담률: <strong>${formatPercent(result.copayRate)}</strong></p>
-        <p>국가 지원금: <strong>${formatKRW(result.governmentSupport)}</strong></p>
-        ${nonCoveredRow}
+        ${breakdown}
+        <p style="font-size:.78rem;color:var(--color-text-muted);margin-bottom:.5rem;">급여 비용 합계: <strong>${formatKRW(result.totalFee)}</strong> · 본인부담률 <strong>${formatPercent(result.copayRate)}</strong> · 국가 지원 <strong>${formatKRW(result.governmentSupport)}</strong></p>
+        <p style="font-size:.78rem;color:var(--color-text-muted);">${result.rateYear}년 장기요양 시설급여 수가 · ${result.days}일 기준</p>
       `;
 
       document.getElementById('resultBox').classList.add('visible');
