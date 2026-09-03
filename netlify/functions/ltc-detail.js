@@ -4,7 +4,6 @@
  */
 
 const https = require('https');
-const path = require('path');
 
 const API_HOST = 'apis.data.go.kr';
 const DETAIL_PATH = '/B550928/getLtcInsttDetailInfoService02/getGeneralSttusDetailInfoItem02';
@@ -12,7 +11,8 @@ const DETAIL_PATH = '/B550928/getLtcInsttDetailInfoService02/getGeneralSttusDeta
 let DONG_MAP = null;
 function getDongMap() {
   if (!DONG_MAP) {
-    const raw = require(path.join(__dirname, 'dong-map.json'));
+    // 정적 경로 사용 — 동적 path.join은 번들러가 추적 불가
+    const raw = require('./dong-map.json');
     DONG_MAP = { current: raw.current ?? raw, legacy: raw.legacy ?? {} };
   }
   return DONG_MAP;
