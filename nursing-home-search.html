@@ -296,44 +296,23 @@
       }
 
       const notice = data.notice ? `<p style="font-size:.82rem;color:var(--color-text-muted);margin-bottom:.5rem;">※ ${data.notice}</p>` : '';
-      resultsEl.innerHTML = `<p style="margin-bottom:.5rem; color:var(--color-text-muted);">총 <strong>${total}</strong>개 기관 (클릭하면 상세 정보)</p>${notice}` +
-        items.map((item, i) => `
-          <div class="facility-card" id="card-${i}" onclick="toggleDetail(${i}, '${item.code}', '${item.facilityTypeCode}')" style="cursor:pointer;">
+      resultsEl.innerHTML = `<p style="margin-bottom:.5rem; color:var(--color-text-muted);">총 <strong>${total}</strong>개 기관</p>${notice}` +
+        items.map((item) => `
+          <div class="facility-card">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;">
               <h3 style="margin:0;">${item.name || '(기관명 없음)'}</h3>
               ${item.facilityType ? `<span style="font-size:.78rem;white-space:nowrap;background:var(--color-primary-light);color:var(--color-primary);padding:2px 8px;border-radius:999px;">${item.facilityType}</span>` : ''}
             </div>
-            <div class="facility-meta" id="detail-${i}" style="display:none;margin-top:.75rem;">
-              <span id="addr-${i}">📍 불러오는 중...</span>
-              <span id="tel-${i}"></span>
-            </div>
+            ${item.address || item.phone ? `<div class="facility-meta" style="margin-top:.6rem;flex-direction:column;gap:.25rem;align-items:flex-start;">
+              ${item.address ? `<span style="font-size:.88rem;color:var(--color-text-muted);">📍 ${item.address}</span>` : ''}
+              ${item.phone  ? `<span style="font-size:.88rem;color:var(--color-text-muted);">📞 ${item.phone}</span>` : ''}
+            </div>` : ''}
           </div>
         `).join('');
 
       renderPagination(total);
     }
 
-    async function toggleDetail(i, code, pttnCd) {
-      const detailEl = document.getElementById(`detail-${i}`);
-      if (detailEl.style.display !== 'none') {
-        detailEl.style.display = 'none';
-        return;
-      }
-      detailEl.style.display = 'flex';
-
-      if (document.getElementById(`addr-${i}`).textContent === '📍 불러오는 중...') {
-        try {
-          const params = new URLSearchParams({ code });
-          if (pttnCd) params.set('pttnCd', pttnCd);
-          const res = await fetch(`/api/ltc/detail?${params}`);
-          const d = await res.json();
-          document.getElementById(`addr-${i}`).textContent = d.tel ? `📞 ${d.tel}` : '전화번호 정보 없음';
-          document.getElementById(`tel-${i}`).textContent = '';
-        } catch {
-          document.getElementById(`addr-${i}`).textContent = '📍 정보 조회 실패';
-        }
-      }
-    }
 
     function renderPagination(total) {
       const totalPages = Math.ceil(total / 10);
