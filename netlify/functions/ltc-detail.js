@@ -79,14 +79,10 @@ function pad(v, len) {
   return s.length > len ? s.slice(-len) : s.padStart(len, '0');
 }
 
-// 건보공단 신 시도코드 → 법정동코드 시도코드 (서울·세종 이하는 동일)
-const SIDO_REMAP = { '26':'21','27':'22','28':'23','29':'24','30':'25','31':'26' };
-
 function resolveAddress(xml) {
   const { current, legacy } = getDongMap();
 
-  const rawSido = pad(getTag(xml, 'siDoCd'), 2);
-  const sido = (rawSido && SIDO_REMAP[rawSido]) || rawSido;
+  const sido = pad(getTag(xml, 'siDoCd'), 2);
   const sgg  = pad(getTag(xml, 'siGunGuCd'), 3);
   const dong = pad(getTag(xml, 'BDongCd'), 3);
   const ri   = pad(getTag(xml, 'riCd'), 2);
