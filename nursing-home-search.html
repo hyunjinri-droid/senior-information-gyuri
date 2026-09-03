@@ -297,22 +297,51 @@
 
       const notice = data.notice ? `<p style="font-size:.82rem;color:var(--color-text-muted);margin-bottom:.5rem;">※ ${data.notice}</p>` : '';
       resultsEl.innerHTML = `<p style="margin-bottom:.5rem; color:var(--color-text-muted);">총 <strong>${total}</strong>개 기관</p>${notice}` +
-        items.map((item) => `
-          <div class="facility-card">
+        items.map((item, i) => `
+          <div class="facility-card" id="card-${i}">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;">
               <h3 style="margin:0;">${item.name || '(기관명 없음)'}</h3>
               ${item.facilityType ? `<span style="font-size:.78rem;white-space:nowrap;background:var(--color-primary-light);color:var(--color-primary);padding:2px 8px;border-radius:999px;">${item.facilityType}</span>` : ''}
             </div>
-            ${item.address || item.phone ? `<div class="facility-meta" style="margin-top:.6rem;flex-direction:column;gap:.25rem;align-items:flex-start;">
-              ${item.address ? `<span style="font-size:.88rem;color:var(--color-text-muted);">📍 ${item.address}</span>` : ''}
-              ${item.phone  ? `<span style="font-size:.88rem;color:var(--color-text-muted);">📞 ${item.phone}</span>` : ''}
-            </div>` : ''}
+            <div id="detail-${i}" style="margin-top:.5rem;font-size:.88rem;color:var(--color-text-muted);display:flex;flex-direction:column;gap:.2rem;">
+              <span style="opacity:.45;">정보 불러오는 중…</span>
+            </div>
           </div>
         `).join('');
 
       renderPagination(total);
+      loadDetails(items);
     }
 
+
+    async function loadDetails(items) {
+      const CONCURRENCY = 4;
+      let cursor = 0;
+      const workers = Array.from({ length: Math.min(CONCURRENCY, items.length) }, async () => {
+        while (true) {
+          const i = cursor++;
+          if (i >= items.length) return;
+          const item = items[i];
+          const el = document.getElementById(`detail-${i}`);
+          if (!el || !item.code) { if (el) el.innerHTML = ''; continue; }
+          try {
+            const params = new URLSearchParams({ code: item.code });
+            if (item.facilityTypeCode) params.set('pttnCd', item.facilityTypeCode);
+            const res = await fetch(`/api/ltc/detail?${params}`);
+            const d = await res.json();
+            const addr = d.address || '';
+            const phone = d.phone || d.tel || '';
+            el.innerHTML = [
+              addr  ? `<span>📍 ${addr}</span>`  : '',
+              phone ? `<span>📞 ${phone}</span>` : '',
+            ].filter(Boolean).join('') || '';
+          } catch {
+            el.innerHTML = '';
+          }
+        }
+      });
+      await Promise.all(workers);
+    }
 
     function renderPagination(total) {
       const totalPages = Math.ceil(total / 10);
