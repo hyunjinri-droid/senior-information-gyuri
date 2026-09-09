@@ -10,10 +10,17 @@ from datetime import datetime, timezone, timedelta
 KST = timezone(timedelta(hours=9))
 today = datetime.now(KST).strftime('%Y-%m-%d')
 
-# 이미 통합 가이드가 있는 주제 — 자유 선택 시에도 중복 생성 금지
+# 프롬프트 금지 키워드 (Claude 자유 선택 시 안내용)
 BLOCKED_TOPICS = [
     '낙상 예방', '낙상예방', 'fall prevention', '낙상',
 ]
+
+# 슬러그·제목 하드 차단 패턴 (생성 후 코드에서 검증)
+SLUG_BLOCKED = ['fall-prevention', 'fall_prevention', 'falling-prevention']
+TITLE_BLOCKED = ['낙상', '낙상 예방', '낙상예방']
+
+# 같은 주제 클러스터 최대 편수 (슬러그 앞 2단어 기준)
+CLUSTER_CAP = 3
 
 
 TOPIC_LIST = [
@@ -56,6 +63,39 @@ def get_existing_posts():
     titles = re.findall(r"title: '([^']+)'", content)
     slugs = re.findall(r"slug: '([^']+)'", content)
     return titles, slugs
+
+
+def cluster_key(slug):
+    """슬러그에서 날짜 접두사(YYYY-MM-DD-)를 제거한 뒤 앞 2단어 반환."""
+    parts = re.sub(r'^\d{4}-\d{2}-\d{2}-', '', slug).split('-')
+    return '-'.join(parts[:2])
+
+
+def validate_generated(data, existing_titles, existing_slugs):
+    """생성된 포스트 유효성 검사. 문제가 있으면 이유 문자열, 없으면 None 반환."""
+    slug = data.get('slug', '')
+    title = data.get('title', '')
+
+    for pat in SLUG_BLOCKED:
+        if pat in slug:
+            return f"슬러그 차단 패턴 '{pat}' 포함: {slug}"
+
+    for pat in TITLE_BLOCKED:
+        if pat in title:
+            return f"제목 차단 키워드 '{pat}' 포함: {title}"
+
+    if slug in existing_slugs:
+        return f"슬러그 중복: {slug}"
+
+    if title[:10] and any(title[:10] in et for et in existing_titles):
+        return f"제목 중복 의심 (앞 10자 일치): {title[:10]}"
+
+    key = cluster_key(slug)
+    count = sum(1 for s in existing_slugs if cluster_key(s) == key)
+    if count >= CLUSTER_CAP:
+        return f"클러스터 '{key}' 상한 초과 ({count}편 존재, 상한 {CLUSTER_CAP})"
+
+    return None
 
 
 def pick_topic(existing_titles):
@@ -252,7 +292,7 @@ def generate_post():
       <button class="menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
       <nav class="site-nav">
         <a href="../nursing-home-search.html">기관 찾기</a>
-        <a href="../nursing-home-cost-calculator.html">비용 계산</a>
+        <a href="https://information-gyuri.com/nursing-home-cost-calculator">비용 계산</a>
         <a href="../long-term-care-grade.html">등급 안내</a>
         <a href="../basic-pension-guide.html">기초연금</a>
         <a href="../senior-job-guide.html">노인일자리</a>
@@ -334,7 +374,7 @@ def generate_post():
     <div class="related-links">
       <h3>관련 정보 더 보기</h3>
       <a href="../long-term-care-grade.html">장기요양 등급 신청 안내</a>
-      <a href="../nursing-home-cost-calculator.html">요양원 본인부담금 계산기</a>
+      <a href="https://information-gyuri.com/nursing-home-cost-calculator">요양원 본인부담금 계산기</a>
       <a href="../nursing-home-search.html">요양원 기관 찾기</a>
       <a href="../basic-pension-guide.html">기초연금 안내</a>
     </div>
@@ -365,20 +405,30 @@ def generate_post():
 - 톤: 차분하고 신뢰감 있게, 불안 조장 표현 금지
 - 표는 반드시 .table-wrapper로 감쌀 것 (모바일 가로 스크롤 대응)"""
 
-    message = client.messages.create(
-        model="claude-opus-4-8",
-        max_tokens=16000,
-        messages=[{"role": "user", "content": prompt}]
-    )
+    existing_titles, existing_slugs = get_existing_posts()
 
-    raw = message.content[0].text
-    # Extract JSON from code block if present
-    match = re.search(r'```json\s*([\s\S]+?)\s*```', raw)
-    if match:
-        raw = match.group(1)
+    for attempt in range(2):
+        extra = ''
+        if attempt == 1:
+            extra = '\n\n⚠️ 이전 시도에서 차단된 주제가 선택됐습니다. 낙상·fall-prevention 관련 주제는 절대 선택하지 마세요.'
+        message = client.messages.create(
+            model="claude-opus-4-8",
+            max_tokens=16000,
+            messages=[{"role": "user", "content": prompt + extra}]
+        )
 
-    data = json.loads(raw)
-    return data
+        raw = message.content[0].text
+        match = re.search(r'```json\s*([\s\S]+?)\s*```', raw)
+        if match:
+            raw = match.group(1)
+
+        data = json.loads(raw)
+        err = validate_generated(data, existing_titles, existing_slugs)
+        if err is None:
+            return data
+        print(f"[차단] 시도 {attempt+1}: {err}")
+
+    raise SystemExit(f"[중단] 2회 시도 모두 차단됨. 오늘은 발행하지 않습니다.")
 
 
 CATEGORY_EMOJI = {
