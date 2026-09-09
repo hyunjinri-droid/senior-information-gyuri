@@ -37,8 +37,9 @@
 
 [[redirects]]
   from = "/nursing-home-cost-calculator"
-  to = "/nursing-home-cost-calculator.html"
+  to = "https://information-gyuri.com/nursing-home-cost-calculator"
   status = 301
+  force = true
 
 [[redirects]]
   from = "/nursing-home-search"
