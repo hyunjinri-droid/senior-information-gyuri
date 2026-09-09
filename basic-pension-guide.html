@@ -108,22 +108,12 @@
       </div>
 
       <div class="card" style="margin-top:1rem;">
-        <h2 class="section-title">간이 수급 가능 여부 확인</h2>
-        <div class="form-group">
-          <label class="form-label" for="income">월 소득인정액 (원)</label>
-          <input class="form-input" type="number" id="income" placeholder="예: 1500000">
-        </div>
-        <div class="form-group">
-          <label class="form-label">
-            <input type="checkbox" id="isCouple" style="margin-right:.4rem;">
-            부부가구 (배우자도 65세 이상)
-          </label>
-        </div>
-        <button class="btn btn-primary" onclick="checkPension()" style="width:100%;">확인하기</button>
-
-        <div class="result-box" id="pensionResult" style="margin-top:1rem;">
-          <div id="pensionResultText"></div>
-        </div>
+        <h2 class="section-title">수급 가능 여부 확인</h2>
+        <p style="line-height:1.9;margin-bottom:1.25rem;">월 소득인정액과 가구 유형을 입력하면 2026년 선정기준액 기준으로 수급 가능 여부를 확인할 수 있습니다.</p>
+        <a href="https://information-gyuri.com/basic-pension-calculator"
+           style="display:block;background:var(--color-primary);color:#fff;font-weight:700;font-size:1rem;text-align:center;padding:1rem 1.5rem;border-radius:8px;text-decoration:none;">
+          기초연금 수급 자격 계산기 →
+        </a>
       </div>
 
       <div class="alert alert-info" style="margin-top:1.5rem;">
@@ -257,7 +247,6 @@
     </div>
   </footer>
 
-  <script defer src="js/calculator.js"></script>
   <script>
     function checkPension() {
       const income = getNumVal('income');
