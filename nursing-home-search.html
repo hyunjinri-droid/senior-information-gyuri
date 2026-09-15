@@ -263,12 +263,27 @@
       document.getElementById('results').innerHTML = '';
       document.getElementById('pagination').innerHTML = '';
 
+      if (page === 1 && typeof gtag === 'function') {
+        gtag('event', 'facility_search', {
+          event_category: 'search',
+          search_region: `${sido} ${sigungu}`.trim(),
+        });
+      }
+
       try {
         const params = new URLSearchParams({ sido, sigungu, pageIndex: page });
         const res = await fetch(`/api/ltc/search?${params}`);
         const data = await res.json();
 
         if (data.error) throw new Error(data.error);
+
+        if (page === 1 && typeof gtag === 'function') {
+          gtag('event', 'search_result', {
+            event_category: 'search',
+            search_region: `${sido} ${sigungu}`.trim(),
+            result_count: data.totalCount || 0,
+          });
+        }
 
         renderResults(data);
       } catch (e) {

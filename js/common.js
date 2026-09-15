@@ -40,10 +40,31 @@
     btn.style.transform = '';
     btn.style.boxShadow = '0 4px 16px rgba(0,0,0,0.18)';
   });
+  btn.addEventListener('click', function () {
+    if (typeof gtag === 'function') {
+      gtag('event', 'kakao_channel_click', { event_category: 'engagement' });
+    }
+  });
   document.addEventListener('DOMContentLoaded', function () {
     document.body.appendChild(btn);
   });
 })();
+
+/* outbound_click 이벤트 — 외부 도메인 링크 전체 */
+document.addEventListener('click', function (e) {
+  const a = e.target.closest('a[href]');
+  if (!a) return;
+  try {
+    const url = new URL(a.href, location.href);
+    if (url.hostname && url.hostname !== location.hostname && typeof gtag === 'function') {
+      gtag('event', 'outbound_click', {
+        event_category: 'outbound',
+        link_url: url.href,
+        link_domain: url.hostname,
+      });
+    }
+  } catch (_) {}
+});
 
 /* 햄버거 메뉴 토글 */
 function toggleMenu() {
