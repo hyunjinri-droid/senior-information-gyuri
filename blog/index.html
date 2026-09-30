@@ -64,6 +64,7 @@
     .cat-의료비    { background: #fce7f3; color: #be185d; }
     .cat-복지정책  { background: #ede9fe; color: #7c3aed; }
     .cat-요양원    { background: #e0f2fe; color: #0369a1; }
+    .cat-여가운동  { background: #dcfce7; color: #15803d; }
     .post-title {
       font-size: 1.05rem;
       font-weight: 700;
@@ -141,6 +142,7 @@
     .thumb-의료비   { background: linear-gradient(135deg,#be185d,#ec4899); }
     .thumb-복지정책  { background: linear-gradient(135deg,#4c1d95,#8b5cf6); }
     .thumb-연금정보  { background: linear-gradient(135deg,#065f46,#10b981); }
+    .thumb-여가운동  { background: linear-gradient(135deg,#166534,#22c55e); }
     @media (max-width: 480px) {
       .post-thumb { width: 80px; min-width: 80px; }
       .post-thumb-emoji { font-size: 1.4rem; }
@@ -208,9 +210,22 @@
         <button class="tag-btn" onclick="filterPosts('노인일자리', this)">노인일자리</button>
         <button class="tag-btn" onclick="filterPosts('의료비', this)">의료비</button>
         <button class="tag-btn" onclick="filterPosts('복지정책', this)">복지정책</button>
+        <button class="tag-btn" onclick="filterPosts('여가운동', this)">여가운동</button>
       </div>
 
       <div class="post-grid" id="postGrid">
+        <a class="post-card" href="park-golf-beginner-guide.html" data-category="여가운동">
+          <div class="post-thumb thumb-여가운동">
+            <div class="post-thumb-emoji">⛳</div>
+            <div class="post-thumb-hashtag">#여가운동</div>
+          </div>
+          <div class="post-card-body">
+            <span class="post-category cat-여가운동">여가운동</span>
+            <div class="post-title">파크골프 시작하기 — 경기 방식·장비·비용·예약까지 한번에 정리</div>
+            <div class="post-excerpt">파크골프 경기 방식과 장비 가격, 구장 이용료와 예약 방법을 처음 시작하는 분 기준으로 정리했습니다.</div>
+            <div class="post-meta">2026년 9월 30일 · 약 9분</div>
+          </div>
+        </a>
         <a class="post-card" href="2026-09-29-grade-out-community-care.html" data-category="장기요양">
           <div class="post-thumb thumb-장기요양">
             <div class="post-thumb-emoji">🏥</div>
@@ -501,6 +516,14 @@
        블로그 글 목록 — 새 글 추가 시 여기에 항목 추가
        ===================================================== */
     const POSTS = [
+      {
+        slug: 'park-golf-beginner-guide',
+        title: '파크골프 시작하기 — 경기 방식·장비·비용·예약까지 한번에 정리',
+        excerpt: '파크골프 경기 방식과 장비 가격, 구장 이용료와 예약 방법을 처음 시작하는 분 기준으로 정리했습니다.',
+        category: '여가운동',
+        date: '2026-09-30',
+        readMin: 9,
+      },
       {
         slug: '2026-09-29-grade-out-community-care',
         title: '등급외 판정 후 지역사회 돌봄 연계 활용법 (2026년)',
@@ -943,7 +966,7 @@
       }
       const emojiMap = {
         '장기요양':'🏥','기초연금':'💰','요양원':'🏡','노인일자리':'💼',
-        '의료비':'🩺','복지정책':'📋','연금정보':'💰'
+        '의료비':'🩺','복지정책':'📋','연금정보':'💰','여가운동':'⛳'
       };
       grid.innerHTML = pagePosts.map(p => `
         <a class="post-card" href="${p.slug}.html" data-category="${p.category}">
