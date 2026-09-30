@@ -98,6 +98,10 @@
     .post-header .container { max-width: 740px; }
     .post-header h1 { font-size: 1.6rem; font-weight: 700; line-height: 1.4; margin-bottom: .5rem; }
     .post-meta { font-size: .9rem; opacity: .85; margin-top: .5rem; }
+    .cta-wrap { margin: 1.25rem 0 1.75rem; }
+    .cta-btn { display: block; padding: 1rem 1.25rem; border-radius: var(--border-radius); font-weight: 700; font-size: 1.1rem; text-decoration: none; text-align: center; background: #2563eb; color: #fff; }
+    .cta-btn:hover { opacity: .9; color: #fff; }
+    .cta-note { font-size: .9rem; color: var(--color-text-muted); text-align: center; margin-top: .5rem; }
     .toc { background: #f8fafc; border: 1px solid var(--color-border); border-radius: var(--border-radius); padding: 1rem 1.25rem; margin: 1.5rem 0; }
     .toc strong { display: block; margin-bottom: .4rem; }
     .toc ol { margin: 0; }
@@ -167,6 +171,11 @@
     <a href="index.html" class="back-btn">← 블로그 목록으로</a>
 
     <p class="lead"><strong>파크골프는 클럽 한 자루로 공원 잔디에서 치는 작은 골프입니다.</strong> 공공 구장은 무료부터 1만 원 안팎이면 하루를 칠 수 있습니다. 입문용 클럽은 10만 원대부터 있어서 처음 드는 돈도 크지 않습니다.</p>
+
+    <div class="cta-wrap">
+      <a class="cta-btn" href="https://yeyak.seoul.go.kr/web/search/selectPageListDetailSearchImg.do?code=T100&amp;dCode=T115" target="_blank" rel="noopener">서울공공서비스 파크골프 예약 바로가기 →</a>
+      <p class="cta-note">서울시 공공서비스예약 누리집으로 이동합니다. 서울 여러 자치구의 파크골프장과 실내 파크골프장을 한곳에서 예약할 수 있습니다.</p>
+    </div>
 
     <div class="highlight-box">
       <strong>한눈에 보기</strong>
@@ -341,11 +350,11 @@
     </section>
 
     <h2>7. 다음으로 읽을 글</h2>
-    <!-- TODO(글 2·3): 실내·스크린 파크골프 글과 골프채 비교글이 공개되면 .pending 카드를 <a class="next-card" href="..."> 링크로 교체 -->
-    <div class="next-card pending">
+    <a class="next-card" href="indoor-screen-park-golf-guide.html">
       <span class="icon">🏠</span>
-      <span class="title">겨울에도 치는 실내·스크린 파크골프 이용 방법<span class="desc">준비 중인 글입니다.</span></span>
-    </div>
+      <span class="title">겨울에도 치는 실내·스크린 파크골프 — 이용료·예약·필드와 차이 정리<span class="desc">서울 구립 스크린 파크골프장 요금 비교와 예약 방법</span></span>
+    </a>
+    <!-- TODO(글 3): 골프채 비교글(product.information-gyuri.com) URL이 확정되면 .pending 카드를 링크로 교체 -->
     <div class="next-card pending">
       <span class="icon">🏌️</span>
       <span class="title">입문자용 파크골프채 가격대별 비교<span class="desc">준비 중인 글입니다.</span></span>
