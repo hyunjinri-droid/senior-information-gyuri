@@ -16,8 +16,9 @@ BLOCKED_TOPICS = [
 ]
 
 # 슬러그·제목 하드 차단 패턴 (생성 후 코드에서 검증)
-SLUG_BLOCKED = ['fall-prevention', 'fall_prevention', 'falling-prevention']
-TITLE_BLOCKED = ['낙상', '낙상 예방', '낙상예방']
+# fall-prevention-complete-guide.html로 통합 완료 — 더 이상 발행 금지
+SLUG_BLOCKED = ['fall-prevention', 'fall_prevention', 'falling-prevention', 'fall-prev']
+TITLE_BLOCKED = ['낙상', '낙상 예방', '낙상예방', '낙상방지', '낙상 방지']
 
 # 같은 주제 클러스터 최대 편수 (슬러그 앞 2단어 기준)
 CLUSTER_CAP = 4
