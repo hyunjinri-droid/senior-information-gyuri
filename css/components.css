@@ -235,3 +235,44 @@
   cursor: pointer;
   padding: 0.25rem 0;
 }
+
+/* ===========================
+   카카오채널 CTA 박스
+   =========================== */
+.kakao-cta {
+  background: #fffde7;
+  border: 2px solid #FEE500;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin: 2rem 0;
+  text-align: center;
+}
+.kakao-cta__text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.kakao-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #FEE500;
+  color: #3A1D1D;
+  font-weight: 700;
+  font-size: 1.05rem;
+  border-radius: 8px;
+  padding: 0 1.5rem;
+  min-height: 52px;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.15s;
+  white-space: nowrap;
+}
+.kakao-cta__btn:hover {
+  background: #fdd800;
+  transform: translateY(-2px);
+  text-decoration: none;
+  color: #3A1D1D;
+}
+.kakao-cta__btn svg { flex-shrink: 0; }
