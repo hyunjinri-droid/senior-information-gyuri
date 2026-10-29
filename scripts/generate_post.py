@@ -5,6 +5,8 @@ import anthropic
 import os
 import re
 import json
+import urllib.request
+import urllib.parse
 from datetime import datetime, timezone, timedelta
 
 KST = timezone(timedelta(hours=9))
@@ -530,6 +532,26 @@ def update_sitemap(slug, date):
         f.write(content)
 
 
+INDEXNOW_KEY = '7a0aaa4ee7ca350441ce9aef215fb4ab'
+SITE_BASE = 'https://senior.information-gyuri.com'
+
+
+def submit_indexnow(slug):
+    url = f'{SITE_BASE}/blog/{slug}.html'
+    params = urllib.parse.urlencode({
+        'url': url,
+        'key': INDEXNOW_KEY,
+        'keyLocation': f'{SITE_BASE}/{INDEXNOW_KEY}.txt',
+    })
+    api_url = f'https://api.indexnow.org/indexnow?{params}'
+    try:
+        req = urllib.request.Request(api_url, headers={'User-Agent': 'senior-info-bot/1.0'})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            print(f"IndexNow: {resp.status} ({url})")
+    except Exception as e:
+        print(f"IndexNow 제출 실패 (무시): {e}")
+
+
 def main():
     print(f"Generating blog post for {today}...")
     data = generate_post()
@@ -554,6 +576,9 @@ def main():
     # Update sitemap
     update_sitemap(slug, today)
     print("Updated: sitemap.xml")
+
+    # Submit to IndexNow (Bing)
+    submit_indexnow(slug)
 
     print(f"\nDone! Post: {title}")
 
