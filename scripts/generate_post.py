@@ -9,8 +9,13 @@ import urllib.request
 import urllib.parse
 from datetime import datetime, timezone, timedelta
 
+from fact_check import load_facts, facts_prompt_block, facts_age_days, check_post
+
 KST = timezone(timedelta(hours=9))
 today = datetime.now(KST).strftime('%Y-%m-%d')
+
+FACTS = load_facts()
+FACT_YEAR = FACTS['base_year']  # 글에 '○○년 기준'으로 표기할 연도 = 팩트시트 기준 연도
 
 # 프롬프트 금지 키워드 (Claude 자유 선택 시 안내용)
 BLOCKED_TOPICS = [
@@ -52,7 +57,7 @@ TOPIC_LIST = [
     # ── 발행 예정 주제 ──
 
     # [시기 맞춤] 2026년 4분기~2027년 초
-    ("2027년 기초연금 3구간 차등지급 총정리 — 하위 30%·30~45%·45~70% 수령액", "기초연금"),
+    # ("2027년 기초연금 3구간 차등지급 총정리", "기초연금"),               # 2026-10-27 (11-09 수동 정정)
     ("2027년 노인일자리 신청 방법·모집 일정·탈락 사유 완전 가이드", "노인일자리"),
     ("2026 에너지바우처 겨울 사용처·마감일·신청 방법 (12월 31일까지)", "복지정책"),
     ("연말정산 부모님 의료비·부양가족 공제 실전 가이드 (2026년 귀속)", "의료비"),
@@ -151,10 +156,12 @@ def blocked_topics_str():
 def generate_post():
     client = anthropic.Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
 
-    existing_titles, _ = get_existing_posts()
+    existing_titles, existing_slugs_for_links = get_existing_posts()
     topic, category = pick_topic(existing_titles)
 
-    existing_str = '\n'.join(f'- {t}' for t in existing_titles) or '(없음)'
+    existing_str = '\n'.join(
+        f'- {t} → {s}.html' for t, s in zip(existing_titles, existing_slugs_for_links)
+    ) or '(없음)'
     topic_instruction = (
         f'주제: **{topic}** (카테고리: {category})'
         if topic else
@@ -168,8 +175,13 @@ def generate_post():
 오늘 날짜: {today}
 {topic_instruction}
 
-## 기발행 글 목록 (중복 금지)
+## 기발행 글 목록 (중복 금지 · 내부링크는 이 목록의 파일명만 사용)
 {existing_str}
+
+⚠️ 시리즈 네비·관련 글·본문의 블로그 내부링크는 **위 목록에 있는 파일명(→ 오른쪽)만** 쓰세요.
+목록에 없는 파일명을 지어내면 깨진 링크로 판정되어 글이 차단됩니다.
+
+{facts_prompt_block(FACTS)}
 
 ## 주제 선택 금지 목록 (이미 통합 가이드 존재)
 다음 키워드를 포함한 주제는 절대 선택하지 마세요: {blocked_topics_str()}
@@ -191,7 +203,7 @@ def generate_post():
 
 ### 3. 진정성과 신뢰
 - **국민건강보험공단 장기요양보험** 또는 **보건복지부** 공식 자료를 본문 어딘가에 출처로 명시합니다.
-  예) "(출처: 국민건강보험공단 장기요양보험, {today[:4]}년 기준)"
+  예) "(출처: 국민건강보험공단 장기요양보험, {FACT_YEAR}년 기준)"
 - 치매·간병 등 민감한 주제는 **과장하거나 불안을 조장하는 표현을 절대 쓰지 않습니다**.
   ✗ "이제 더 이상 미룰 수 없습니다!" → ✓ "천천히 준비할수록 선택지가 넓어집니다."
 - 차분하고 신뢰감 있는 어투를 유지합니다.
@@ -202,7 +214,7 @@ def generate_post():
 - 본문 섹션 4~6개, 각 섹션 2~4 문단, AEO/GEO 최적화(구체적 수치·명확한 답변).
 
 ### 5. 연도 기준 명시
-- 수가·본인부담률·선정기준액 등 매년 바뀌는 수치는 반드시 **"{today[:4]}년 기준"** 을 괄호 안에 명시합니다.
+- 수가·본인부담률·선정기준액 등 매년 바뀌는 수치는 반드시 **"{FACT_YEAR}년 기준"** 을 괄호 안에 명시합니다.
 - 수치 출처는 국민건강보험공단 또는 보건복지부로 표기합니다.
 
 ---
@@ -364,9 +376,9 @@ def generate_post():
     <!-- ① 돌봄 시나리오 리드 (필수): 40~50대 자녀가 공감하는 현실적 상황 묘사로 시작 -->
     <p class="lead">[현실적인 돌봄 상황 시나리오 1~2문장. 예: "치매 진단을 받으신 아버지를 두고 어떻게 해야 할지 막막했던 경험, 많은 분들이 비슷한 상황을 겪고 계십니다."] 이 글에서는 [주제 귀속: 요양등급 신청 / 시설 선택 / 비용 계산] 과정을 단계별로 정리합니다.</p>
 
-    <!-- ② 핵심 요약 박스 (2026년 기준 수치 포함) -->
+    <!-- ② 핵심 요약 박스 ({FACT_YEAR}년 기준 수치 포함) -->
     <div class="highlight-box">
-      <strong>{today[:4]}년 기준 핵심 요약</strong>
+      <strong>{FACT_YEAR}년 기준 핵심 요약</strong>
       <ul style="margin:.5rem 0 0; padding-left:1.2rem;">
         <li>[핵심 수치/자격 요건 1]</li>
         <li>[핵심 수치/자격 요건 2]</li>
@@ -376,7 +388,7 @@ def generate_post():
 
     <!-- ③ 본문 섹션 4~6개 (h2 → 설명 문단 → 필요 시 표/박스) -->
     <!-- 수치 데이터(등급별 혜택·본인부담금 등)는 반드시 .table-wrapper > table로 정리 -->
-    <!-- 출처: (출처: 국민건강보험공단 장기요양보험, {today[:4]}년 기준) 형식으로 표 아래 명시 -->
+    <!-- 출처: (출처: 국민건강보험공단 장기요양보험, {FACT_YEAR}년 기준) 형식으로 표 아래 명시 -->
 
     <!-- ④ FAQ 섹션 (5개 필수, .faq-item 구조 사용) -->
     <div class="faq-section">
@@ -434,16 +446,17 @@ def generate_post():
 
 위 구조와 5대 원칙을 반드시 지켜 실제 내용을 채운 완성된 HTML 파일 전체를 full_html에 넣어주세요.
 - 글 분량: 본문 섹션 4~6개, 각 섹션 2~4 문단
-- 수치는 {today[:4]}년 기준으로 정확하게 기재
+- 수치는 위 팩트시트 기준으로만 기재 (팩트시트에 없는 수치는 지어내지 말 것)
 - 톤: 차분하고 신뢰감 있게, 불안 조장 표현 금지
 - 표는 반드시 .table-wrapper로 감쌀 것 (모바일 가로 스크롤 대응)"""
 
     existing_titles, existing_slugs = get_existing_posts()
 
+    last_err = ''
     for attempt in range(3):
         extra = ''
-        if attempt >= 1:
-            extra = '\n\n⚠️ 이전 시도에서 차단된 주제가 선택됐습니다. 낙상·fall-prevention 관련 주제는 절대 선택하지 마세요. 이미 발행된 글과 제목·슬러그가 겹치지 않도록 완전히 다른 주제를 선택해주세요.'
+        if last_err:
+            extra = f'\n\n⚠️ 이전 시도가 아래 이유로 차단됐습니다. 이 문제를 반드시 고쳐서 다시 작성하세요 (낙상 관련 주제는 계속 금지):\n{last_err}'
         message = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=16000,
@@ -458,8 +471,12 @@ def generate_post():
         data = json.loads(raw)
         err = validate_generated(data, existing_titles, existing_slugs)
         if err is None:
-            return data
+            issues = check_post(data.get('full_html', ''), 'blog', FACTS)
+            if not issues:
+                return data
+            err = '팩트·링크 검사 실패:\n' + '\n'.join(f'- {i}' for i in issues)
         print(f"[차단] 시도 {attempt+1}: {err}")
+        last_err = err
 
     raise SystemExit(f"[중단] 3회 시도 모두 차단됨. 오늘은 발행하지 않습니다.")
 
@@ -554,6 +571,15 @@ def submit_indexnow(slug):
 
 def main():
     print(f"Generating blog post for {today}...")
+
+    age = facts_age_days(FACTS)
+    if age > FACTS['max_age_days']:
+        raise SystemExit(
+            f"[중단] 팩트시트(scripts/facts.json)가 {age}일 전({FACTS['verified_on']}) 기준입니다. "
+            f"새 연도 고시 수치를 반영하고 verified_on을 갱신한 뒤 다시 실행하세요."
+        )
+    if int(today[:4]) > FACT_YEAR:
+        print(f"[주의] 올해({today[:4]}) 수치가 팩트시트에 아직 없습니다. 글은 {FACT_YEAR}년 기준으로 표기됩니다.")
     data = generate_post()
 
     slug = data['slug']
